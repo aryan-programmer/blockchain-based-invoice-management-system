@@ -1,7 +1,7 @@
 {
 	"compilerOptions": {
-		"target": "ES5",
-		"module": "esnext",
+		"target": "ES6",
+		"module": "CommonJS",
 		"strict": true,
 		"importHelpers": false,
 		"moduleResolution": "node",
@@ -15,6 +15,7 @@
 		"noImplicitThis": true,
 		"sourceMap": true,
 		"noEmit": false,
+		"noEmitHelpers": false,
 		"typeRoots": [
 			"node_modules/@types"
 		],
@@ -26,7 +27,11 @@
 			"scripthost"
 		]
 	},
+	"include": [
+		"**/*.ts"
+	],
 	"exclude": [
-		"node_modules"
+		"node_modules",
+		"**/*.test.ts"
 	]
 }
