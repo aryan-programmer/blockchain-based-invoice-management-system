@@ -1,0 +1,12 @@
+{
+	"name": "blockchain-based-invoice-management-system",
+	"version": "1.0.0",
+	"description": "A blockchain based invoice management system.",
+	"main": "index.js",
+	"license": "MIT",
+	"devDependencies": {
+		"@types/jest": "^25.2.1",
+		"jest": "^25.5.1",
+		"typescript": "^3.8.3"
+	}
+}
