@@ -3,7 +3,7 @@
 		"target": "ES6",
 		"module": "CommonJS",
 		"strict": true,
-		"importHelpers": false,
+		"importHelpers": true,
 		"moduleResolution": "node",
 		"esModuleInterop": true,
 		"downlevelIteration": true,

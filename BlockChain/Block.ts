@@ -1,6 +1,8 @@
 import {SHA512} from "crypto-js";
+import frozen from "../frozen";
 import DataType from "./DataType";
 
+@frozen
 export default class Block {
 	constructor (
 		public readonly timestamp: number,
@@ -8,28 +10,7 @@ export default class Block {
 		public readonly hash: string,
 		public readonly data: DataType
 	) {
-		Object.defineProperties(this, {
-			timestamp: {
-				value: timestamp,
-				writable: false,
-				configurable: false
-			},
-			lastHash: {
-				value: lastHash,
-				writable: false,
-				configurable: false
-			},
-			hash: {
-				value: hash,
-				writable: false,
-				configurable: false
-			},
-			data: {
-				value: data,
-				writable: false,
-				configurable: false
-			},
-		});
+		Object.freeze(this);
 	}
 
 	toString (): string {
@@ -60,6 +41,10 @@ export default class Block {
 		const lastHash = lastBlock.hash;
 		const hash = Block.hash(timestamp, lastHash, data);
 		return new Block(timestamp, lastHash, hash, data);
+	}
+
+	static hashBlock(block: Block): string{
+		return Block.hash(block.timestamp, block.lastHash, block.data);
 	}
 
 	private static hash (timestamp: number, lastHash: string, data: DataType): string {
