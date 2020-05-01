@@ -1,3 +1,3 @@
-export * from "./DataType";
-export * from "./Block";
-export * from "./BlockChain";
+export * from "./Invoice";
+export {default as Block} from "./Block";
+export {default as BlockChain} from "./BlockChain";

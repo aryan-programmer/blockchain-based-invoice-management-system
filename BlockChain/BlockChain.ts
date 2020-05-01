@@ -1,7 +1,7 @@
 import isEqual from "lodash/isEqual";
 import frozen from "../frozen";
 import Block from "./Block";
-import DataType from "./DataType";
+import {Invoice, RecInvoice} from "./Invoice";
 
 @frozen
 export default class BlockChain {
@@ -11,8 +11,16 @@ export default class BlockChain {
 		this.chain = [Block.genesis()];
 	}
 
-	addBlock (data: DataType): Block {
-		const block = Block.mineBlock(this.chain[this.chain.length - 1], data);
+	addBlock (data: RecInvoice): Block {
+		const retData = data as Invoice;
+		let totalCost = 0;
+		for (const product of retData.products) {
+			product.tax = product.cost * product.taxPercentage / 100;
+			product.totalCost = product.cost + product.tax;
+			totalCost += product.totalCost;
+		}
+		retData.totalCost = totalCost;
+		const block = Block.mineBlock(this.chain[this.chain.length - 1], retData);
 		this.chain.push(block);
 		return block;
 	}

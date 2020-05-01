@@ -5,16 +5,26 @@
 	"main": "index.js",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/crypto-js": "^3.1.45",
 		"@types/jest": "^25.2.1",
-		"@types/lodash": "^4.14.150",
 		"jest": "^25.5.1",
+		"nodemon": "^2.0.3",
 		"ts-jest": "^25.4.0",
 		"typescript": "^3.8.3"
 	},
 	"dependencies": {
+		"@types/body-parser": "^1.19.0",
+		"@types/crypto-js": "^3.1.45",
+		"@types/express": "^4.17.6",
+		"@types/lodash": "^4.14.150",
+		"body-parser": "^1.19.0",
+		"commander": "^5.1.0",
 		"crypto-js": "^4.0.0",
+		"express": "^4.17.1",
 		"lodash": "^4.17.15",
 		"tslib": "^1.11.1"
+	},
+	"scripts": {
+		"app": "node app/index.js",
+		"appDev": "nodemon app/index.js"
 	}
 }

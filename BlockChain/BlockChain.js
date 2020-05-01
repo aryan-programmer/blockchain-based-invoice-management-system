@@ -10,7 +10,15 @@ let BlockChain = BlockChain_1 = class BlockChain {
         this.chain = [Block_1.default.genesis()];
     }
     addBlock(data) {
-        const block = Block_1.default.mineBlock(this.chain[this.chain.length - 1], data);
+        const retData = data;
+        let totalCost = 0;
+        for (const product of retData.products) {
+            product.tax = product.cost * product.taxPercentage / 100;
+            product.totalCost = product.cost + product.tax;
+            totalCost += product.totalCost;
+        }
+        retData.totalCost = totalCost;
+        const block = Block_1.default.mineBlock(this.chain[this.chain.length - 1], retData);
         this.chain.push(block);
         return block;
     }

@@ -13,12 +13,7 @@ let Block = Block_1 = class Block {
         Object.freeze(this);
     }
     toString() {
-        return `Block {
-	Timestamp : ${this.timestamp},
-	Last Hash : ${this.lastHash},
-	Hash      : ${this.hash},
-	Data      : ${this.data},
-}`;
+        return JSON.stringify(this, null, 2);
     }
     static genesis() {
         return new Block_1(Block_1.genesisTime, Block_1.genesisLastHash, Block_1.genesisHash, Block_1.genesisData);
@@ -33,12 +28,16 @@ let Block = Block_1 = class Block {
         return Block_1.hash(block.timestamp, block.lastHash, block.data);
     }
     static hash(timestamp, lastHash, data) {
-        return crypto_js_1.SHA512(`T${timestamp} H${lastHash} D${data}`).toString();
+        return crypto_js_1.SHA512(`T${timestamp} H${lastHash} D${JSON.stringify(data)}`).toString();
     }
 };
 Block.genesisTime = Date.UTC(2020, 0, 1, 0, 0, 0, 0);
 Block.genesisLastHash = crypto_js_1.SHA512("2.71828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746").toString();
-Block.genesisData = "3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214";
+Block.genesisData = {
+    invoiceNumber: "3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214",
+    products: [],
+    totalCost: 0
+};
 Block.genesisHash = Block_1.hash(Block_1.genesisTime, Block_1.genesisLastHash, Block_1.genesisData);
 Block = Block_1 = tslib_1.__decorate([
     frozen_1.default

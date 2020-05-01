@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const tslib_1 = require("tslib");
-tslib_1.__exportStar(require("./Block"), exports);
-tslib_1.__exportStar(require("./BlockChain"), exports);
+var Block_1 = require("./Block");
+exports.Block = Block_1.default;
+var BlockChain_1 = require("./BlockChain");
+exports.BlockChain = BlockChain_1.default;
 //# sourceMappingURL=index.js.map
