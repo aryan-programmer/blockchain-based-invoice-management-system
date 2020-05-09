@@ -1,8 +1,8 @@
 import {SHA512} from "crypto-js";
-import frozen from "../frozen";
+import freeze from "../freeze";
 import {Invoice} from "./Invoice";
 
-@frozen
+@freeze
 export default class Block {
 	constructor (
 		public readonly timestamp: number,

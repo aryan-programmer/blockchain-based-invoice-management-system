@@ -4,27 +4,37 @@ import {program} from "commander";
 import {Request, Response} from "express-serve-static-core";
 import util from "util";
 import {BlockChain} from "../BlockChain";
+import P2PServer from "./P2PServer";
 
 program
 	.version("1.0.0", "-v, --version", "Show current version")
 	.name("blockchain-based-invoice-management-system")
 	.helpOption("-h, --help", "Show this help")
-	.requiredOption("-p, --port <number>", "The HTTP port on which to listen, must be more than 1000", parseInt)
+	.requiredOption("--port <number>", "The HTTP port on which to listen, must be more than 1000", parseInt)
+	.requiredOption("--p2p-port <number>", "The port on which to listen for P2P connections, must be more than 1000", parseInt)
+	.option("--peers <list>", "The peers to connect to, separated by commas, no spaces", (value) => value.split(","), [])
 	.parse(process.argv);
 
-const {port: HTTP_PORT} = program;
+let httpPort: number, p2pPort: number, peers: string[];
+({port: httpPort, p2pPort, peers} = program);
 
-if(HTTP_PORT == null || isNaN(HTTP_PORT)) {
-	console.error("error: option '-p, --port <number>' invalid argument")
-	process.exit(1);
+function verifyNumber (val: number, optionName: string) {
+	if(val == null || isNaN(val)) {
+		console.error(`error: option '${optionName}' invalid argument`)
+		process.exit(1);
+	}
+	if(val < 1000) {
+		console.error(`error: option '${optionName}' must be more than 1000`)
+		process.exit(1);
+	}
 }
-if(HTTP_PORT < 1000) {
-	console.error("error: option '-p, --port <number>' must be more than 1000")
-	process.exit(1);
-}
+
+verifyNumber(httpPort, "--port <number>");
+verifyNumber(p2pPort, "--p2p-port <number>");
 
 const app = express();
 const chain = new BlockChain();
+const p2pServer = new P2PServer(chain);
 
 app.use(bodyParser.json());
 
@@ -35,9 +45,12 @@ app.get('/invoices', (req: Request, res: Response) => {
 app.post('/mine', (req: Request, res: Response) => {
 	const block = chain.addBlock(req.body.data);
 	console.log("Block added: ", util.inspect(block, true, null, true));
+	p2pServer.syncChains();
 	res.redirect("/invoices");
 })
 
-app.listen(HTTP_PORT, () => {
-	console.log(`Listening on port ${HTTP_PORT}`);
+app.listen(httpPort, () => {
+	console.log(`Listening on port ${httpPort}`);
 });
+
+p2pServer.listen(p2pPort, peers);

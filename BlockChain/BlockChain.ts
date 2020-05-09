@@ -1,9 +1,9 @@
 import isEqual from "lodash/isEqual";
-import frozen from "../frozen";
+import freeze from "../freeze";
 import Block from "./Block";
 import {Invoice, RecInvoice} from "./Invoice";
 
-@frozen
+@freeze
 export default class BlockChain {
 	chain: Block[];
 
