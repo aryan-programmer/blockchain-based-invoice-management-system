@@ -1,25 +1,23 @@
 import Block from "./Block";
 import BlockChain from "./BlockChain";
-import {Invoice} from "./Invoice";
+import {Invoice, RecInvoice} from "./Invoice";
 
 describe("BlockChain", function () {
 	let chain: BlockChain;
 	let chain2: BlockChain;
 	let genesis: Block;
 	// φ to 104 digits after the decimal
-	const phi: Invoice = {
+	const phi: RecInvoice = {
 		invoiceNumber: "1.61803398874989484820458683436563811772030917980576286213544862270526046281890244970720720418939113748475",
-		products: [],
-		totalCost: 0
+		products: []
 	};
 	// π² to 104 digits after the decimal
-	const piSquared: Invoice = {
+	const piSquared: RecInvoice = {
 		invoiceNumber: "9.86960440108935861883449099987615113531369940724079062641334937622004482241920524300177340371855223182402",
-		products: [],
-		totalCost: 0
+		products: []
 	};
 	// √π to 104 digits after the decimal
-	const sqrtPi: Invoice = {
+	const sqrtPi: RecInvoice & Invoice = {
 		invoiceNumber: "1.772453850905516027298167483341145182797549456122387128213807789852911284591032181374950656738544665",
 		products: [],
 		totalCost: 0
@@ -56,13 +54,13 @@ describe("BlockChain", function () {
 					invoiceNumber: "22/7",
 					products: [],
 					totalCost: 0
-				});
+				}, "", 0);
 				expect(BlockChain.isValid(chain.chain)).toBe(false);
 			});
 
 			it('should invalidate a corrupt chain', function () {
 				const block = chain.chain[2];
-				chain.chain[2] = new Block(block.timestamp, block.lastHash, block.hash, sqrtPi);
+				chain.chain[2] = new Block(block.timestamp, block.lastHash, block.hash, sqrtPi, "", block.difficulty);
 				expect(BlockChain.isValid(chain.chain)).toBe(false);
 			});
 		});
@@ -97,7 +95,7 @@ describe("BlockChain", function () {
 					invoiceNumber: "φ",
 					products: [],
 					totalCost: 0
-				});
+				}, "", block.difficulty);
 				expect(chain2.replaceChain(chain.chain)).toBe(false);
 				expect(chain2.chain).not.toEqual(chain.chain);
 			});

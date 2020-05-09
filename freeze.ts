@@ -1,4 +1,4 @@
-export default function freeze(constructor: Function) {
+export function freezeClass(constructor: Function) {
 	Object.freeze(constructor);
 	Object.freeze(constructor.prototype);
 }

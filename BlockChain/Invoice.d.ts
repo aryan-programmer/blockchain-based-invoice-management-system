@@ -1,3 +1,5 @@
+import {DeepReadonly} from "../utils";
+
 export type RecProduct = {
 	name: string,
 	quantity: string,
@@ -10,13 +12,13 @@ export type RecInvoice = {
 	products: RecProduct[],
 };
 
-export type Product = RecProduct & {
+export type Product = DeepReadonly<RecProduct & {
 	tax: number,
 	totalCost: number,
-};
+}>;
 
-export type Invoice = {
+export type Invoice = DeepReadonly<{
 	invoiceNumber: string,
 	products: Product[],
 	totalCost: number,
-};
+}>;

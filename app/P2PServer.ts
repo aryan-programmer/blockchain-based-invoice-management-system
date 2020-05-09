@@ -1,9 +1,8 @@
-import util from "util";
 import WebSocket from "ws";
 import {Block, BlockChain} from "../BlockChain";
-import freeze from "../freeze";
+import {freezeClass} from "../freeze";
 
-@freeze
+@freezeClass
 export default class P2PServer {
 	public readonly sockets: WebSocket[];
 	public readonly chain: BlockChain;
@@ -50,11 +49,9 @@ export default class P2PServer {
 			if (typeof message === "string") {
 				const data: Block[] = JSON.parse(message).map(
 					(value: Block) =>
-						new Block(value.timestamp, value.lastHash, value.hash, value.data)
+						new Block(value.timestamp, value.lastHash, value.hash, value.data, value.nonce)
 				);
-				if(this.chain.replaceChain(data)){
-					console.log("Replaced chain with: ", util.inspect(data, true, null, true));
-				}
+				this.chain.replaceChain(data);
 			}
 		});
 	}

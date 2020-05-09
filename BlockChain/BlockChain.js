@@ -3,7 +3,7 @@ var BlockChain_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const isEqual_1 = tslib_1.__importDefault(require("lodash/isEqual"));
-const freeze_1 = tslib_1.__importDefault(require("../freeze"));
+const freeze_1 = require("../freeze");
 const Block_1 = tslib_1.__importDefault(require("./Block"));
 let BlockChain = BlockChain_1 = class BlockChain {
     constructor() {
@@ -48,7 +48,7 @@ let BlockChain = BlockChain_1 = class BlockChain {
     }
 };
 BlockChain = BlockChain_1 = tslib_1.__decorate([
-    freeze_1.default
+    freeze_1.freezeClass
 ], BlockChain);
 exports.default = BlockChain;
 //# sourceMappingURL=BlockChain.js.map

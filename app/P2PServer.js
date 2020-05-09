@@ -1,10 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
-const util_1 = tslib_1.__importDefault(require("util"));
 const ws_1 = tslib_1.__importDefault(require("ws"));
 const BlockChain_1 = require("../BlockChain");
-const freeze_1 = tslib_1.__importDefault(require("../freeze"));
+const freeze_1 = require("../freeze");
 let P2PServer = class P2PServer {
     constructor(chain) {
         this.chain = chain;
@@ -40,16 +39,14 @@ let P2PServer = class P2PServer {
     addMessageHandlerFor(socket) {
         socket.on("message", (message) => {
             if (typeof message === "string") {
-                const data = JSON.parse(message).map((value) => new BlockChain_1.Block(value.timestamp, value.lastHash, value.hash, value.data));
-                if (this.chain.replaceChain(data)) {
-                    console.log("Replaced chain with: ", util_1.default.inspect(data, true, null, true));
-                }
+                const data = JSON.parse(message).map((value) => new BlockChain_1.Block(value.timestamp, value.lastHash, value.hash, value.data, value.nonce));
+                this.chain.replaceChain(data);
             }
         });
     }
 };
 P2PServer = tslib_1.__decorate([
-    freeze_1.default
+    freeze_1.freezeClass
 ], P2PServer);
 exports.default = P2PServer;
 //# sourceMappingURL=P2PServer.js.map

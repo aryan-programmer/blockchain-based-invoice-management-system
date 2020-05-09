@@ -1,9 +1,10 @@
 import isEqual from "lodash/isEqual";
-import freeze from "../freeze";
+import {freezeClass} from "../freeze";
+import {DeepWriteable} from "../utils";
 import Block from "./Block";
 import {Invoice, RecInvoice} from "./Invoice";
 
-@freeze
+@freezeClass
 export default class BlockChain {
 	chain: Block[];
 
@@ -12,7 +13,7 @@ export default class BlockChain {
 	}
 
 	addBlock (data: RecInvoice): Block {
-		const retData = data as Invoice;
+		const retData = data as DeepWriteable<Invoice>;
 		let totalCost = 0;
 		for (const product of retData.products) {
 			product.tax = product.cost * product.taxPercentage / 100;
