@@ -1,15 +1,21 @@
 import WebSocket from "ws";
 import {Block, BlockChain} from "../BlockChain";
 import {freezeClass} from "../freeze";
+import {Invoice, InvoicePool} from "../Wallet";
+
+enum SentDataType {
+	Chain,
+	Invoice
+}
 
 @freezeClass
 export default class P2PServer {
-	public readonly sockets: WebSocket[];
-	public readonly chain: BlockChain;
+	public readonly sockets: WebSocket[] = [];
 
-	constructor (chain: BlockChain) {
-		this.chain = chain;
-		this.sockets = [];
+	constructor (
+		public readonly chain: BlockChain,
+		public readonly pool: InvoicePool,
+	) {
 		Object.freeze(this);
 	}
 
@@ -23,6 +29,12 @@ export default class P2PServer {
 	syncChains () {
 		for (const socket of this.sockets) {
 			this.sendChainTo(socket)
+		}
+	}
+
+	broadcastInvoice (invoice: Invoice) {
+		for (const socket of this.sockets) {
+			P2PServer.sendInvoiceTo(socket, invoice);
 		}
 	}
 
@@ -41,17 +53,34 @@ export default class P2PServer {
 	}
 
 	private sendChainTo (socket: WebSocket) {
-		socket.send(JSON.stringify(this.chain.chain));
+		socket.send(JSON.stringify({
+			type: SentDataType.Chain,
+			value: this.chain.chain
+		}));
+	}
+
+	private static sendInvoiceTo (socket: WebSocket, invoice: Invoice) {
+		socket.send(JSON.stringify({
+			type: SentDataType.Invoice,
+			value: invoice
+		}));
 	}
 
 	private addMessageHandlerFor (socket: WebSocket) {
 		socket.on("message", (message: string | Buffer | ArrayBuffer | Buffer[]) => {
 			if (typeof message === "string") {
-				const data: Block[] = JSON.parse(message).map(
-					(value: Block) =>
-						new Block(value.timestamp, value.lastHash, value.hash, value.data, value.nonce, value.difficulty)
-				);
-				this.chain.replaceChain(data);
+				const msg:
+					{ type: SentDataType.Chain, value: Block[] } |
+					{ type: SentDataType.Invoice, value: Invoice } = JSON.parse(message);
+				if (msg.type === SentDataType.Chain) {
+					const data: Block[] = msg.value.map(
+						(value: Block) =>
+							new Block(value.timestamp, value.lastHash, value.hash, value.data, value.nonce, value.difficulty)
+					);
+					this.chain.replaceChain(data);
+				} else if (msg.type === SentDataType.Invoice) {
+					this.pool.addInvoice(new Invoice(msg.value, true));
+				}
 			}
 		});
 	}

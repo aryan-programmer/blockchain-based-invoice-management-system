@@ -10,27 +10,32 @@ function roundTo2Decimals(value) {
 }
 let Invoice = class Invoice {
     constructor(invoice, wallet) {
-        const invoice_ = cloneDeep_1.default(invoice);
-        let totalCost = 0;
-        for (const product of invoice_.products) {
-            product.cost = roundTo2Decimals(product.cost);
-            product.tax = roundTo2Decimals(product.cost * product.taxPercentage / 100);
-            product.totalCost = roundTo2Decimals(product.cost + product.tax);
-            totalCost += product.totalCost;
+        if (wallet === true) {
+            const invoice_ = invoice;
+            this.invoice = invoice_.invoice;
+            this.signature = invoice_.signature;
+            this.publicKey = invoice_.publicKey;
         }
-        invoice_.totalCost = roundTo2Decimals(totalCost);
-        this.invoice = invoice_;
-        this.signature = wallet.sign(invoice_.invoiceNumber, ...invoice_.products.map(value => JSON.stringify(value)), invoice_.totalCost.toString());
-        this.publicKey = wallet.publicKeyPem;
+        else {
+            const invoice_ = cloneDeep_1.default(invoice);
+            let totalCost = 0;
+            for (const product of invoice_.products) {
+                product.cost = roundTo2Decimals(product.cost);
+                product.tax = roundTo2Decimals(product.cost * product.taxPercentage / 100);
+                product.totalCost = roundTo2Decimals(product.cost + product.tax);
+                totalCost += product.totalCost;
+            }
+            invoice_.totalCost = roundTo2Decimals(totalCost);
+            this.invoice = invoice_;
+            this.signature = wallet.sign(JSON.stringify(invoice_), wallet.publicKeyPem);
+            this.publicKey = wallet.publicKeyPem;
+        }
         utils_1.deepFreeze(this);
     }
     static verify(publicKey, invoice, signature) {
         const verifier = crypto_1.default.createVerify("sha512");
-        verifier.update(invoice.invoiceNumber);
-        for (const product of invoice.products) {
-            verifier.update(JSON.stringify(product));
-        }
-        verifier.update(invoice.totalCost.toString());
+        verifier.update(JSON.stringify(invoice));
+        verifier.update(publicKey);
         return verifier.verify(publicKey, signature, "hex");
     }
 };

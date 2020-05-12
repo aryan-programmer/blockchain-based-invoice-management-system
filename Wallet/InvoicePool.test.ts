@@ -1,13 +1,13 @@
-Object.freeze = (a: any) => a;
-
 import crypto from "crypto";
 import {createKeyValuePair, id} from "../utils";
 import Invoice from "./Invoice";
+import InvoicePool from "./InvoicePool";
 import Wallet from "./Wallet";
 
-describe("Invoice", function () {
+describe("InvoicePool", function () {
 	let wallet: Wallet;
 	let invoice: Invoice;
+	let pool: InvoicePool;
 	let publicKey: crypto.KeyObject;
 	let privateKey: crypto.KeyObject;
 
@@ -28,6 +28,7 @@ describe("Invoice", function () {
 
 	beforeEach(function () {
 		wallet = new Wallet(publicKey, privateKey);
+		pool = new InvoicePool();
 		invoice = new Invoice({
 			invoiceNumber: id(),
 			products: [{
@@ -42,29 +43,10 @@ describe("Invoice", function () {
 				taxPercentage: 18.00
 			}]
 		}, wallet);
+		pool.addInvoice(invoice);
 	});
 
-	it('should validate a valid invoice', function () {
-		expect(Invoice.verify(wallet.publicKeyPem, invoice.invoice, invoice.signature)).toBe(true);
-	});
-
-	it('should invalidate an tampered invoice', async function () {
-		// @ts-ignore
-		// noinspection JSConstantReassignment
-		invoice.invoice = {
-			invoiceNumber: "142857-99-42",
-			products: [{
-				name: "A's",
-				cost: 0,
-				quantity: "0 box",
-				taxPercentage: 18.42
-			}, {
-				name: "B's",
-				cost: 0,
-				quantity: "0 boxes",
-				taxPercentage: 18.00
-			}]
-		};
-		expect(Invoice.verify(wallet.publicKeyPem, invoice.invoice, invoice.signature)).toBe(false);
+	it('should add an invoice to the pool', function () {
+		expect(pool.invoices.find(value => value.invoice.invoiceNumber === invoice.invoice.invoiceNumber)).toEqual(invoice);
 	});
 });

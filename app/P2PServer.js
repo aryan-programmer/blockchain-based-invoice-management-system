@@ -1,12 +1,20 @@
 "use strict";
+var P2PServer_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const ws_1 = tslib_1.__importDefault(require("ws"));
 const BlockChain_1 = require("../BlockChain");
 const freeze_1 = require("../freeze");
-let P2PServer = class P2PServer {
-    constructor(chain) {
+const Wallet_1 = require("../Wallet");
+var SentDataType;
+(function (SentDataType) {
+    SentDataType[SentDataType["Chain"] = 0] = "Chain";
+    SentDataType[SentDataType["Invoice"] = 1] = "Invoice";
+})(SentDataType || (SentDataType = {}));
+let P2PServer = P2PServer_1 = class P2PServer {
+    constructor(chain, pool) {
         this.chain = chain;
+        this.pool = pool;
         this.sockets = [];
         Object.freeze(this);
     }
@@ -19,6 +27,11 @@ let P2PServer = class P2PServer {
     syncChains() {
         for (const socket of this.sockets) {
             this.sendChainTo(socket);
+        }
+    }
+    broadcastInvoice(invoice) {
+        for (const socket of this.sockets) {
+            P2PServer_1.sendInvoiceTo(socket, invoice);
         }
     }
     connectToPeers(peers) {
@@ -34,18 +47,33 @@ let P2PServer = class P2PServer {
         this.sendChainTo(socket);
     }
     sendChainTo(socket) {
-        socket.send(JSON.stringify(this.chain.chain));
+        socket.send(JSON.stringify({
+            type: SentDataType.Chain,
+            value: this.chain.chain
+        }));
+    }
+    static sendInvoiceTo(socket, invoice) {
+        socket.send(JSON.stringify({
+            type: SentDataType.Invoice,
+            value: invoice
+        }));
     }
     addMessageHandlerFor(socket) {
         socket.on("message", (message) => {
             if (typeof message === "string") {
-                const data = JSON.parse(message).map((value) => new BlockChain_1.Block(value.timestamp, value.lastHash, value.hash, value.data, value.nonce, value.difficulty));
-                this.chain.replaceChain(data);
+                const msg = JSON.parse(message);
+                if (msg.type === SentDataType.Chain) {
+                    const data = msg.value.map((value) => new BlockChain_1.Block(value.timestamp, value.lastHash, value.hash, value.data, value.nonce, value.difficulty));
+                    this.chain.replaceChain(data);
+                }
+                else if (msg.type === SentDataType.Invoice) {
+                    this.pool.addInvoice(new Wallet_1.Invoice(msg.value, true));
+                }
             }
         });
     }
 };
-P2PServer = tslib_1.__decorate([
+P2PServer = P2PServer_1 = tslib_1.__decorate([
     freeze_1.freezeClass
 ], P2PServer);
 exports.default = P2PServer;

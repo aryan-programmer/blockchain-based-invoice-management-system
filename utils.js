@@ -5,9 +5,42 @@ const crypto_1 = tslib_1.__importDefault(require("crypto"));
 const readline_1 = tslib_1.__importDefault(require("readline"));
 const stream_1 = require("stream");
 const util_1 = require("util");
-const { v1: uuidV1 } = require('uuid');
-exports.id = uuidV1;
 crypto_1.default.generateKeyPair.__promisify__ = util_1.promisify(crypto_1.default.generateKeyPair);
+// The NPM uuid package fails with an:
+// Error: No valid exports main found for '<path-to-project>\node_modules\uuid'
+// region ...UUID V4 with default parameters only
+const byteToHex = [];
+for (let i = 0; i < 256; ++i) {
+    byteToHex[i] = (i + 0x100).toString(16).substr(1);
+}
+function bytesToUuid(buf) {
+    return [
+        byteToHex[buf[0]],
+        byteToHex[buf[1]],
+        byteToHex[buf[2]],
+        byteToHex[buf[3]], '-',
+        byteToHex[buf[4]],
+        byteToHex[buf[5]], '-',
+        byteToHex[buf[6]],
+        byteToHex[buf[7]], '-',
+        byteToHex[buf[8]],
+        byteToHex[buf[9]], '-',
+        byteToHex[buf[10]],
+        byteToHex[buf[11]],
+        byteToHex[buf[12]],
+        byteToHex[buf[13]],
+        byteToHex[buf[14]],
+        byteToHex[buf[15]]
+    ].join('');
+}
+function id() {
+    let i = 0;
+    const rnds = crypto_1.default.randomBytes(16); // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
+    rnds[6] = rnds[6] & 0x0f | 0x40;
+    rnds[8] = rnds[8] & 0x3f | 0x80; // Copy bytes to buffer, if provided
+    return bytesToUuid(rnds);
+}
+exports.id = id;
 function deepFreeze(object) {
     let propNames = Object.getOwnPropertyNames(object);
     for (let name of propNames) {
@@ -70,4 +103,5 @@ function getNewDifficulty(currentDifficulty, mineStartTimestamp) {
 }
 exports.getNewDifficulty = getNewDifficulty;
 // endregion Mining difficulty
+deepFreeze(module.exports);
 //# sourceMappingURL=utils.js.map

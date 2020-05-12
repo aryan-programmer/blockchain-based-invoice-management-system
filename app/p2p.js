@@ -2,12 +2,13 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const body_parser_1 = tslib_1.__importDefault(require("body-parser"));
+const crypto_1 = tslib_1.__importDefault(require("crypto"));
 const express_1 = tslib_1.__importDefault(require("express"));
 const fs_1 = tslib_1.__importDefault(require("fs"));
-const util_1 = tslib_1.__importStar(require("util"));
-const crypto_1 = tslib_1.__importDefault(require("crypto"));
+const util_1 = require("util");
 const BlockChain_1 = require("../BlockChain");
 const utils_1 = require("../utils");
+const Wallet_1 = require("../Wallet");
 const P2PServer_1 = tslib_1.__importDefault(require("./P2PServer"));
 fs_1.default.readFile.__promisify__ = util_1.promisify(fs_1.default.readFile);
 function default_1(args) {
@@ -42,16 +43,27 @@ function default_1(args) {
         });
         const app = express_1.default();
         const chain = new BlockChain_1.BlockChain();
-        const p2pServer = new P2PServer_1.default(chain);
+        const wallet = new Wallet_1.Wallet(publicKey, privateKey);
+        const pool = new Wallet_1.InvoicePool();
+        const p2pServer = new P2PServer_1.default(chain, pool);
         app.use(body_parser_1.default.json());
         app.get('/invoices', (req, res) => {
             res.json(chain.chain);
         });
+        app.get('/pendingInvoices', (req, res) => {
+            res.json(pool.invoices);
+        });
+        app.get('/publicKey', (req, res) => {
+            res.send(wallet.publicKeyPem);
+        });
         app.post('/mine', (req, res) => {
-            const block = chain.addBlock(req.body.data);
-            console.log("Block added: ", util_1.default.inspect(block, true, null, true));
+            chain.addBlock(req.body.data);
             p2pServer.syncChains();
             res.redirect("/invoices");
+        });
+        app.post('/addInvoice', (req, res) => {
+            p2pServer.broadcastInvoice(wallet.addInvoiceToPool(pool, req.body.data));
+            res.redirect("/pendingInvoices");
         });
         app.listen(httpPort, () => {
             console.log(`Listening on port ${httpPort}`);

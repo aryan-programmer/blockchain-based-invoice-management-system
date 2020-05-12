@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const crypto_1 = tslib_1.__importDefault(require("crypto"));
 const freeze_1 = require("../freeze");
+const Invoice_1 = tslib_1.__importDefault(require("./Invoice"));
 let Wallet = class Wallet {
     constructor(publicKey, privateKey) {
         this.publicKey = publicKey;
@@ -16,6 +17,9 @@ let Wallet = class Wallet {
             signer.update(arg);
         }
         return signer.sign(this.privateKey, "hex");
+    }
+    addInvoiceToPool(pool, invoice) {
+        return pool.addInvoice(new Invoice_1.default(invoice, this));
     }
 };
 Wallet = tslib_1.__decorate([

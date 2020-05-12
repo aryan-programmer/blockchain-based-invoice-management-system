@@ -1,3 +1,5 @@
+Object.freeze = (a: any) => a;
+
 import Block from "./Block";
 import BlockChain from "./BlockChain";
 import {Invoice, RecInvoice} from "./Invoice";
@@ -38,34 +40,33 @@ describe("BlockChain", function () {
 		expect(chain.chain[1].data).toEqual(phi);
 	});
 
-	describe("BlockChain validity related functions", function () {
+	describe("Validity related functions", function () {
 		beforeEach(function () {
 			chain.addBlock(phi);
 			chain.addBlock(piSquared);
 		});
 
-		describe("BlockChain.isValid", function () {
+		describe("isValid", function () {
 			it('should validate a valid chain', function () {
 				expect(BlockChain.isValid(chain.chain)).toBe(true);
 			});
 
 			it('should invalidate a chain with a corrupt genesis block', function () {
-				chain.chain[0] = new Block(genesis.timestamp, genesis.lastHash, genesis.hash, {
-					invoiceNumber: "22/7",
-					products: [],
-					totalCost: 0
-				}, "", 0);
+				// @ts-ignore
+				// noinspection JSConstantReassignment
+				chain.chain[0].data.invoiceNumber = "22/7";
 				expect(BlockChain.isValid(chain.chain)).toBe(false);
 			});
 
 			it('should invalidate a corrupt chain', function () {
-				const block = chain.chain[2];
-				chain.chain[2] = new Block(block.timestamp, block.lastHash, block.hash, sqrtPi, "", block.difficulty);
+				// @ts-ignore
+				// noinspection JSConstantReassignment
+				chain.chain[2].data = sqrtPi;
 				expect(BlockChain.isValid(chain.chain)).toBe(false);
 			});
 		});
 
-		describe("BlockChain.replaceChain", function () {
+		describe("replaceChain", function () {
 			it('should replace the chain with a valid and longer chain', function () {
 				expect(chain2.replaceChain(chain.chain)).toBe(true);
 				expect(chain2.chain).toEqual(chain.chain);
@@ -90,12 +91,13 @@ describe("BlockChain", function () {
 				chain.addBlock(piSquared);
 				chain.addBlock(sqrtPi);
 				chain.addBlock(phi);
-				const block = chain.chain[3];
-				chain.chain[3] = new Block(block.timestamp, block.lastHash, block.hash, {
+				// @ts-ignore
+				// noinspection JSConstantReassignment
+				chain.chain[3].data ={
 					invoiceNumber: "φ",
 					products: [],
 					totalCost: 0
-				}, "", block.difficulty);
+				};
 				expect(chain2.replaceChain(chain.chain)).toBe(false);
 				expect(chain2.chain).not.toEqual(chain.chain);
 			});

@@ -1,11 +1,12 @@
 import bodyParser from "body-parser";
+import crypto from "crypto";
 import express from "express";
 import {Request, Response} from "express-serve-static-core";
 import fs from "fs";
-import util, {promisify} from "util";
-import crypto from "crypto";
+import {promisify} from "util";
 import {BlockChain} from "../BlockChain";
 import {passwordPrompt} from "../utils";
+import {InvoicePool, Wallet} from "../Wallet";
 import P2PServer from "./P2PServer";
 
 fs.readFile.__promisify__ = promisify(fs.readFile);
@@ -51,7 +52,9 @@ export default async function (args: any): Promise<void> {
 
 	const app = express();
 	const chain = new BlockChain();
-	const p2pServer = new P2PServer(chain);
+	const wallet = new Wallet(publicKey, privateKey);
+	const pool = new InvoicePool();
+	const p2pServer = new P2PServer(chain, pool);
 
 	app.use(bodyParser.json());
 
@@ -59,12 +62,24 @@ export default async function (args: any): Promise<void> {
 		res.json(chain.chain);
 	});
 
+	app.get('/pendingInvoices', (req: Request, res: Response) => {
+		res.json(pool.invoices);
+	});
+
+	app.get('/publicKey', (req: Request, res: Response) => {
+		res.send(wallet.publicKeyPem);
+	});
+
 	app.post('/mine', (req: Request, res: Response) => {
-		const block = chain.addBlock(req.body.data);
-		console.log("Block added: ", util.inspect(block, true, null, true));
+		chain.addBlock(req.body.data);
 		p2pServer.syncChains();
 		res.redirect("/invoices");
-	})
+	});
+
+	app.post('/addInvoice', (req: Request, res: Response) => {
+		p2pServer.broadcastInvoice(wallet.addInvoiceToPool(pool, req.body.data));
+		res.redirect("/pendingInvoices");
+	});
 
 	app.listen(httpPort, () => {
 		console.log(`Listening on port ${httpPort}`);

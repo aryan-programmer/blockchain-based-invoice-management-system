@@ -1,5 +1,8 @@
 import crypto from "crypto";
+import {RecInvoice} from "../BlockChain";
 import {freezeClass} from "../freeze";
+import Invoice from "./Invoice";
+import InvoicePool from "./InvoicePool";
 
 @freezeClass
 export default class Wallet {
@@ -18,6 +21,10 @@ export default class Wallet {
 		for (const arg of args) {
 			signer.update(arg);
 		}
-		return signer.sign(this.privateKey,"hex");
+		return signer.sign(this.privateKey, "hex");
+	}
+
+	addInvoiceToPool (pool: InvoicePool, invoice: RecInvoice): Invoice {
+		return pool.addInvoice(new Invoice(invoice, this));
 	}
 }

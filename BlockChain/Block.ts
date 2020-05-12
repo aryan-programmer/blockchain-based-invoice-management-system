@@ -7,16 +7,17 @@ import {Invoice} from "./Invoice";
 export type Nonce = string;
 export type Timestamp = string;
 export type Hash = string;
+export type Data = Invoice;
 
 @freezeClass
 export default class Block {
-	public readonly data: Invoice;
+	public readonly data: Data;
 
 	constructor (
 		public readonly timestamp: Timestamp,
 		public readonly lastHash: Hash,
 		public readonly hash: Hash,
-		data: Invoice,
+		data: Data,
 		public readonly nonce: Nonce,
 		public readonly difficulty: number,
 	) {
@@ -33,7 +34,7 @@ export default class Block {
 		.createHash("sha512")
 		.update("2.71828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746")
 		.digest('hex');
-	private static genesisData: Invoice = deepFreeze({
+	private static genesisData: Data = deepFreeze({
 		invoiceNumber: "3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214",
 		products: [],
 		totalCost: 0
@@ -59,7 +60,7 @@ export default class Block {
 		);
 	}
 
-	static mineBlock (lastBlock: Block, data: Invoice): Block {
+	static mineBlock (lastBlock: Block, data: Data): Block {
 		const timestamp = Date.now();
 		const timestampStr = timestamp.toString();
 		const dataStr = JSON.stringify(data);

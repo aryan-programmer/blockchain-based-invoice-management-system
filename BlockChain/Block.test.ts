@@ -26,7 +26,7 @@ describe("Block", function () {
 		expect(block.lastHash).toEqual(genesis.hash);
 	});
 
-	describe("Block.difficulty related functions", function () {
+	describe("Difficulty related functions", function () {
 		it('should generate a `hash` that starts with zeroes equalling the difficulty level', function () {
 			expect(block.hash.substr(0, block.difficulty)).toEqual('0'.repeat(block.difficulty));
 		});
