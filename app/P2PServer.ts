@@ -49,7 +49,7 @@ export default class P2PServer {
 			if (typeof message === "string") {
 				const data: Block[] = JSON.parse(message).map(
 					(value: Block) =>
-						new Block(value.timestamp, value.lastHash, value.hash, value.data, value.nonce)
+						new Block(value.timestamp, value.lastHash, value.hash, value.data, value.nonce, value.difficulty)
 				);
 				this.chain.replaceChain(data);
 			}

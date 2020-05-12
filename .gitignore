@@ -76,3 +76,6 @@ typings/
 .fusebox/
 
 .idea/
+
+/sign-private-key.pem
+/sign-public-key.pem

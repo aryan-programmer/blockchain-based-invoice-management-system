@@ -1,4 +1,4 @@
-import {getNewDifficulty, initialDifficulty, minDifficulty} from "../utils";
+import {getNewDifficulty, minDifficulty} from "../utils";
 import Block from "./Block";
 import {Invoice} from "./Invoice";
 

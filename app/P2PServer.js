@@ -39,7 +39,7 @@ let P2PServer = class P2PServer {
     addMessageHandlerFor(socket) {
         socket.on("message", (message) => {
             if (typeof message === "string") {
-                const data = JSON.parse(message).map((value) => new BlockChain_1.Block(value.timestamp, value.lastHash, value.hash, value.data, value.nonce));
+                const data = JSON.parse(message).map((value) => new BlockChain_1.Block(value.timestamp, value.lastHash, value.hash, value.data, value.nonce, value.difficulty));
                 this.chain.replaceChain(data);
             }
         });
