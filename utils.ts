@@ -36,8 +36,6 @@ function bytesToUuid (buf: Buffer) {
 }
 
 export function id () {
-	let i = 0;
-
 	const rnds = crypto.randomBytes(16); // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
 
 	rnds[6] = rnds[6] & 0x0f | 0x40;
@@ -45,43 +43,47 @@ export function id () {
 
 	return bytesToUuid(rnds);
 }
+
 // endregion UUID V4 with default parameters only
 
 // region ...Deep r/w only
 export type DeepWriteable<T> = { -readonly [P in keyof T]: DeepWriteable<T[P]> };
 export type DeepReadonly<T> = { readonly [P in keyof T]: DeepReadonly<T[P]> };
 
-export function deepFreeze<T extends any> (object: T): DeepReadonly<T> {
-	let propNames = Object.getOwnPropertyNames(object);
-	for (let name of propNames) {
+export function deepFreeze<T extends object> (object: T): DeepReadonly<T> {
+	for (let name of Object.getOwnPropertyNames(object)) {
+		if (!object.hasOwnProperty(name)) continue;
+		// @ts-ignore
 		let value = object[name];
 		if (value && typeof value === "object") {
 			deepFreeze(value);
 		}
 	}
-	return Object.freeze(object);
+	Object.freeze(object);
+	return object;
 }
 
 // endregion Deep r/w only
 
 // region ...Password prompt
-const {stdout, stdin} = process;
 const nullOut = new Writable({
 	write (chunk, encoding, callback) {
 		callback();
 	}
 });
-const passwordPromptReadlineInterface = readline.createInterface({
-	input: stdin,
-	output: nullOut,
-	terminal: true,
-})
 
 export function passwordPrompt (promptText: string): Promise<string> {
+	const {stdout, stdin}                 = process;
+	const passwordPromptReadlineInterface = readline.createInterface({
+		input: stdin,
+		output: nullOut,
+		terminal: true,
+	});
 	return new Promise((resolve) => {
 		stdout.write(promptText);
 		passwordPromptReadlineInterface.question("", answer => {
 			resolve(answer);
+			passwordPromptReadlineInterface.close();
 			stdout.write("\n");
 		});
 	});
@@ -112,8 +114,8 @@ export function createKeyValuePair (privateKeyPassPhrase: string): Promise<{ pub
 
 // region ...Mining difficulty
 export const initialDifficulty = 5;
-export const minDifficulty = 2;
-const mineRate = 1000;
+export const minDifficulty     = 2;
+const mineRate                 = 1000;
 
 export function getNewDifficulty (currentDifficulty: number, mineStartTimestamp: number): number {
 	return Math.max(currentDifficulty + (mineStartTimestamp + mineRate > Date.now() ? +1 : -1), minDifficulty);

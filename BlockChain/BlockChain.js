@@ -9,27 +9,6 @@ let BlockChain = BlockChain_1 = class BlockChain {
     constructor() {
         this.chain = [Block_1.default.genesis()];
     }
-    addBlock(data) {
-        const retData = data;
-        let totalCost = 0;
-        for (const product of retData.products) {
-            product.tax = product.cost * product.taxPercentage / 100;
-            product.totalCost = product.cost + product.tax;
-            totalCost += product.totalCost;
-        }
-        retData.totalCost = totalCost;
-        const block = Block_1.default.mineBlock(this.chain[this.chain.length - 1], retData);
-        this.chain.push(block);
-        return block;
-    }
-    replaceChain(chain) {
-        if (this.chain.length >= chain.length)
-            return false;
-        if (!BlockChain_1.isValid(chain))
-            return false;
-        this.chain = chain;
-        return true;
-    }
     static isValid(chain) {
         const chainLen = chain.length;
         if (chainLen < 2)
@@ -44,6 +23,19 @@ let BlockChain = BlockChain_1 = class BlockChain {
             if (Block_1.default.hashBlock(block) !== block.hash)
                 return false;
         }
+        return true;
+    }
+    addBlock(data) {
+        const block = Block_1.default.mineBlock(this.chain[this.chain.length - 1], data);
+        this.chain.push(block);
+        return block;
+    }
+    replaceChain(chain) {
+        if (this.chain.length >= chain.length)
+            return false;
+        if (!BlockChain_1.isValid(chain))
+            return false;
+        this.chain = chain;
         return true;
     }
 };

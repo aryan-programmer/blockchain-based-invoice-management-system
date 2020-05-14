@@ -34,7 +34,6 @@ function bytesToUuid(buf) {
     ].join('');
 }
 function id() {
-    let i = 0;
     const rnds = crypto_1.default.randomBytes(16); // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
     rnds[6] = rnds[6] & 0x0f | 0x40;
     rnds[8] = rnds[8] & 0x3f | 0x80; // Copy bytes to buffer, if provided
@@ -42,34 +41,38 @@ function id() {
 }
 exports.id = id;
 function deepFreeze(object) {
-    let propNames = Object.getOwnPropertyNames(object);
-    for (let name of propNames) {
+    for (let name of Object.getOwnPropertyNames(object)) {
+        if (!object.hasOwnProperty(name))
+            continue;
+        // @ts-ignore
         let value = object[name];
         if (value && typeof value === "object") {
             deepFreeze(value);
         }
     }
-    return Object.freeze(object);
+    Object.freeze(object);
+    return object;
 }
 exports.deepFreeze = deepFreeze;
 // endregion Deep r/w only
 // region ...Password prompt
-const { stdout, stdin } = process;
 const nullOut = new stream_1.Writable({
     write(chunk, encoding, callback) {
         callback();
     }
 });
-const passwordPromptReadlineInterface = readline_1.default.createInterface({
-    input: stdin,
-    output: nullOut,
-    terminal: true,
-});
 function passwordPrompt(promptText) {
+    const { stdout, stdin } = process;
+    const passwordPromptReadlineInterface = readline_1.default.createInterface({
+        input: stdin,
+        output: nullOut,
+        terminal: true,
+    });
     return new Promise((resolve) => {
         stdout.write(promptText);
         passwordPromptReadlineInterface.question("", answer => {
             resolve(answer);
+            passwordPromptReadlineInterface.close();
             stdout.write("\n");
         });
     });

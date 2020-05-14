@@ -10,7 +10,7 @@ program
 	.helpOption("-h, --help", "Show this help")
 	.option("--public-key-file-path <file>", "The file to which to store the public key", "sign-public-key.pem")
 	.option("--private-key-file-path <file>", "The file to which to store the private (secret) key", "sign-private-key.pem")
-	.option("--passphrase <password>", "The password used to encrypt the private key")
+	.option("--password <password>", "The password used to encrypt the private key")
 	.action(async args => {
 		try {
 			await require("./gen-keys").default(args);
@@ -30,7 +30,7 @@ program
 	.option("--peers <list>", "The peers to connect to, separated by commas, no spaces", (value) => value.split(","), [])
 	.option("--public-key-file-path <file>", "The file which contains the public key used for signing", "sign-public-key.pem")
 	.option("--private-key-file-path <file>", "The file which contains the private key used for signing", "sign-private-key.pem")
-	.option("--passphrase <password>", "The password that used to encrypt the private key used for signing")
+	.option("--password <password>", "The password that used to encrypt the private key used for signing")
 	.action(async args => {
 		try {
 			await require("./p2p").default(args);

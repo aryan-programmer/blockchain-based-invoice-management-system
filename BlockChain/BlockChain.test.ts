@@ -1,33 +1,37 @@
 Object.freeze = (a: any) => a;
 
-import Block from "./Block";
+import Block, {Data} from "./Block";
 import BlockChain from "./BlockChain";
-import {Invoice, RecInvoice} from "./Invoice";
 
 describe("BlockChain", function () {
 	let chain: BlockChain;
 	let chain2: BlockChain;
 	let genesis: Block;
 	// φ to 104 digits after the decimal
-	const phi: RecInvoice = {
+	const phi: Data       = {
 		invoiceNumber: "1.61803398874989484820458683436563811772030917980576286213544862270526046281890244970720720418939113748475",
-		products: []
+		products: [],
+		totalCost: 0,
+		__notARealInvoice: true
 	};
 	// π² to 104 digits after the decimal
-	const piSquared: RecInvoice = {
+	const piSquared: Data = {
 		invoiceNumber: "9.86960440108935861883449099987615113531369940724079062641334937622004482241920524300177340371855223182402",
-		products: []
+		products: [],
+		totalCost: 0,
+		__notARealInvoice: true
 	};
 	// √π to 104 digits after the decimal
-	const sqrtPi: RecInvoice & Invoice = {
+	const sqrtPi: Data    = {
 		invoiceNumber: "1.772453850905516027298167483341145182797549456122387128213807789852911284591032181374950656738544665",
 		products: [],
-		totalCost: 0
+		totalCost: 0,
+		__notARealInvoice: true
 	};
 
 	beforeEach(function () {
-		chain = new BlockChain();
-		chain2 = new BlockChain();
+		chain   = new BlockChain();
+		chain2  = new BlockChain();
 		genesis = Block.genesis();
 	});
 
@@ -93,7 +97,7 @@ describe("BlockChain", function () {
 				chain.addBlock(phi);
 				// @ts-ignore
 				// noinspection JSConstantReassignment
-				chain.chain[3].data ={
+				chain.chain[3].data = {
 					invoiceNumber: "φ",
 					products: [],
 					totalCost: 0

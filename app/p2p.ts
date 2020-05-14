@@ -7,18 +7,19 @@ import {promisify} from "util";
 import {BlockChain} from "../BlockChain";
 import {passwordPrompt} from "../utils";
 import {InvoicePool, Wallet} from "../Wallet";
+import {Miner} from "./Miner";
 import P2PServer from "./P2PServer";
 
 fs.readFile.__promisify__ = promisify(fs.readFile);
 
 export default async function (args: any): Promise<void> {
 	let httpPort: number,
-		p2pPort: number,
-		peers: string[],
-		passphrase: string,
-		publicKeyFilePath: string,
-		privateKeyFilePath: string;
-	({port: httpPort, p2pPort, peers, passphrase, publicKeyFilePath, privateKeyFilePath} = args);
+	    p2pPort: number,
+	    peers: string[],
+	    password: string,
+	    publicKeyFilePath: string,
+	    privateKeyFilePath: string;
+	({port: httpPort, p2pPort, peers, password, publicKeyFilePath, privateKeyFilePath} = args);
 
 	function verifyNumber (val: number, optionName: string) {
 		if (val == null || isNaN(val)) {
@@ -33,28 +34,29 @@ export default async function (args: any): Promise<void> {
 	verifyNumber(httpPort, "--port <number>");
 	verifyNumber(p2pPort, "--p2p-port <number>");
 
-	while (passphrase == null || passphrase === "") {
-		passphrase = await passwordPrompt("Please enter a passphrase to encrypt the private key:")
+	while (password == null || password === "") {
+		password = await passwordPrompt("Please enter a passphrase to encrypt the private key:")
 	}
 
-	const publicKeyTextPromise = fs.readFile.__promisify__(publicKeyFilePath);
+	const publicKeyTextPromise  = fs.readFile.__promisify__(publicKeyFilePath);
 	const privateKeyTextPromise = fs.readFile.__promisify__(privateKeyFilePath);
 
-	const publicKey = crypto.createPublicKey({
+	const publicKey  = crypto.createPublicKey({
 		key: await publicKeyTextPromise,
 		format: "pem",
 	});
 	const privateKey = crypto.createPrivateKey({
 		key: await privateKeyTextPromise,
 		format: "pem",
-		passphrase
+		passphrase: password
 	});
 
-	const app = express();
-	const chain = new BlockChain();
+	const app    = express();
+	const chain  = new BlockChain();
 	const wallet = new Wallet(publicKey, privateKey);
-	const pool = new InvoicePool();
-	const p2pServer = new P2PServer(chain, pool);
+	const pool   = new InvoicePool();
+	const p2p    = new P2PServer(chain, pool);
+	const miner  = new Miner(wallet, p2p);
 
 	app.use(bodyParser.json());
 
@@ -71,13 +73,12 @@ export default async function (args: any): Promise<void> {
 	});
 
 	app.post('/mine', (req: Request, res: Response) => {
-		chain.addBlock(req.body.data);
-		p2pServer.syncChains();
+		miner.mine();
 		res.redirect("/invoices");
 	});
 
 	app.post('/addInvoice', (req: Request, res: Response) => {
-		p2pServer.broadcastInvoice(wallet.addInvoiceToPool(pool, req.body.data));
+		p2p.broadcastInvoice(wallet.addInvoiceToPool(pool, req.body.data));
 		res.redirect("/pendingInvoices");
 	});
 
@@ -85,5 +86,5 @@ export default async function (args: any): Promise<void> {
 		console.log(`Listening on port ${httpPort}`);
 	});
 
-	p2pServer.listen(p2pPort, peers);
+	p2p.listen(p2pPort, peers);
 }

@@ -8,9 +8,23 @@ export default class InvoicePool {
 	addInvoice (invoice: Invoice): Invoice {
 		if (this.invoices.find(
 			value => value.invoice.invoiceNumber === invoice.invoice.invoiceNumber
-		) == null) {
+		) == null && Invoice.verify(invoice)) {
 			this.invoices.push(invoice);
 		}
 		return invoice;
+	}
+
+	getValidInvoices () {
+		return this.invoices.filter(Invoice.verify);
+	}
+
+	clear () {
+		this.invoices = [];
+	}
+
+	addInvoices (invoices: Invoice[]) {
+		for (const invoice of invoices) {
+			this.addInvoice(invoice);
+		}
 	}
 }

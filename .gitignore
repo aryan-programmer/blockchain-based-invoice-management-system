@@ -77,5 +77,4 @@ typings/
 
 .idea/
 
-/sign-private-key.pem
-/sign-public-key.pem
+/*.pem

@@ -1,52 +1,42 @@
 import crypto from "crypto";
-import {createKeyValuePair, id} from "../utils";
-import Invoice from "./Invoice";
-import InvoicePool from "./InvoicePool";
-import Wallet from "./Wallet";
-import cloneDeep from "lodash/cloneDeep";
+import fs from "fs";
+import {InvoicePool, Wallet} from ".";
+import {id} from "../utils";
 
 describe("Wallet", function () {
 	let wallet: Wallet;
 	let pool: InvoicePool;
-	let publicKey: crypto.KeyObject;
-	let privateKey: crypto.KeyObject;
 
-	beforeAll(function (done) {
-		createKeyValuePair("password").then(({publicKey: publicKeyPem, privateKey: privateKeyPem}) => {
-			publicKey = crypto.createPublicKey({
-				key: publicKeyPem,
-				format: "pem",
-			});
-			privateKey = crypto.createPrivateKey({
-				key: privateKeyPem,
-				format: "pem",
-				passphrase: "password"
-			});
-			done();
-		});
+	const publicKey  = crypto.createPublicKey({
+		key: fs.readFileSync("./sign-public-test-key.pem"),
+		format: "pem",
+	});
+	const privateKey = crypto.createPrivateKey({
+		key: fs.readFileSync("./sign-private-test-key-pwd-pass.pem"),
+		format: "pem",
+		passphrase: "pass"
 	});
 
-	beforeEach(function () {
+	beforeEach(() => {
 		wallet = new Wallet(publicKey, privateKey);
-		pool = new InvoicePool();
+		pool   = new InvoicePool();
 	});
 
-	describe("Creating a new invoice", function () {
-		let invoice: Invoice;
-
-		beforeEach(function () {
-			invoice = wallet.addInvoiceToPool(pool, {
-				invoiceNumber: id(),
-				products: []
-			});
+	it('should add an invoice to the pool', function () {
+		const invoice = wallet.addInvoiceToPool(pool, {
+			invoiceNumber: id(),
+			products: [{
+				name: "A's",
+				cost: 74.42,
+				quantity: "1 box",
+				taxPercentage: 18.42
+			}, {
+				name: "B's",
+				cost: 176.57,
+				quantity: "2 boxes",
+				taxPercentage: 18.00
+			}]
 		});
-
-		describe("And adding it again", function () {
-			it('should do nothing', function () {
-				const oldPool = cloneDeep(pool);
-				expect(pool.addInvoice(invoice)).toBe(invoice);
-				expect(oldPool).toEqual(pool);
-			});
-		})
-	})
+		expect(pool.invoices[0]).toEqual(invoice);
+	});
 });

@@ -24,7 +24,7 @@ export default class Wallet {
 		return signer.sign(this.privateKey, "hex");
 	}
 
-	addInvoiceToPool (pool: InvoicePool, invoice: RecInvoice): Invoice {
+	addInvoiceToPool (pool: InvoicePool, invoice: RecInvoice) {
 		return pool.addInvoice(new Invoice(invoice, this));
 	}
 }

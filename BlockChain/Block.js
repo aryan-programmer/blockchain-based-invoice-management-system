@@ -14,10 +14,7 @@ let Block = Block_1 = class Block {
         this.nonce = nonce;
         this.difficulty = difficulty;
         this.data = cloneDeep_1.default(data);
-        utils_1.deepFreeze(this);
-    }
-    toString() {
-        return JSON.stringify(this, null, 2);
+        // freezeDeep(this);
     }
     static genesis() {
         return new Block_1(Block_1.genesisTime, Block_1.genesisLastHash, Block_1.genesisHash, Block_1.genesisData, Block_1.genesisNonce, Block_1.genesisDifficulty);
@@ -35,7 +32,7 @@ let Block = Block_1 = class Block {
             difficulty = utils_1.getNewDifficulty(lastBlock.difficulty, timestamp);
             nonce = crypto_1.default.randomBytes(64 /* 512bits/8 */).toString("hex");
             hash = Block_1.hash(timestampStr, lastHash, dataStr, nonce, difficulty);
-        } while (!this.doesHashStartWithNZeroes(hash, difficulty));
+        } while (!Block_1.doesHashStartWithNZeroes(hash, difficulty));
         return new Block_1(timestampStr, lastHash, hash, data, nonce, difficulty);
     }
     static doesHashStartWithNZeroes(hash, n) {
@@ -58,6 +55,9 @@ let Block = Block_1 = class Block {
         hash.write(difficulty.toString());
         return hash.digest('hex');
     }
+    toString() {
+        return JSON.stringify(this, null, 2);
+    }
 };
 Block.genesisTime = Date.UTC(2020, 0, 1, 0, 0, 0, 0).toString();
 Block.genesisLastHash = crypto_1.default
@@ -67,7 +67,8 @@ Block.genesisLastHash = crypto_1.default
 Block.genesisData = utils_1.deepFreeze({
     invoiceNumber: "3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214",
     products: [],
-    totalCost: 0
+    totalCost: 0,
+    __notARealInvoice: true
 });
 Block.genesisNonce = "";
 Block.genesisDifficulty = 0;
