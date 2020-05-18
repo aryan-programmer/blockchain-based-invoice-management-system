@@ -6,6 +6,7 @@ const crypto_1 = tslib_1.__importDefault(require("crypto"));
 const cloneDeep_1 = tslib_1.__importDefault(require("lodash/cloneDeep"));
 const freeze_1 = require("../freeze");
 const utils_1 = require("../utils");
+const Wallet_1 = require("../Wallet");
 let Block = Block_1 = class Block {
     constructor(timestamp, lastHash, hash, data, nonce, difficulty) {
         this.timestamp = timestamp;
@@ -14,10 +15,10 @@ let Block = Block_1 = class Block {
         this.nonce = nonce;
         this.difficulty = difficulty;
         this.data = cloneDeep_1.default(data);
-        // freezeDeep(this);
+        utils_1.deepFreeze(this);
     }
     static genesis() {
-        return new Block_1(Block_1.genesisTime, Block_1.genesisLastHash, Block_1.genesisHash, Block_1.genesisData, Block_1.genesisNonce, Block_1.genesisDifficulty);
+        return new Block_1(Block_1.genesisTime, Block_1.genesisLastHash, Block_1.genesisHash, [new Wallet_1.Invoice(Block_1.genesisData, true)], Block_1.genesisNonce, Block_1.genesisDifficulty);
     }
     static mineBlock(lastBlock, data) {
         const timestamp = Date.now();
@@ -64,12 +65,21 @@ Block.genesisLastHash = crypto_1.default
     .createHash("sha512")
     .update("2.71828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746")
     .digest('hex');
-Block.genesisData = utils_1.deepFreeze({
-    invoiceNumber: "3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214",
-    products: [],
-    totalCost: 0,
-    __notARealInvoice: true
-});
+Block.genesisData = new Wallet_1.Invoice({
+    invoice: {
+        invoiceNumber: '3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214',
+        products: [],
+        totalCost: 0,
+    },
+    signature: '308188024201c2e95aba73858ed20ac67d7db5a05dbf20f53ab75f8dc42800e712f981653467f13a69b4cee6e603ad138720ee901356e823e3fec9a0e6398e2d4e8f21344af9b5024201af893b427335b37c23f32689ce56345c720a72b48a8b75a07d91af03898a48266f1b1be55f9ca776f9fcf7d2a2bb4f3658e996318b390b40f4246317a895627c60',
+    publicKey: `-----BEGIN PUBLIC KEY-----
+MIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQBwzm2gXYhW23NMI3GuDeJjuRMSD/5
+9WKtHPn4lbX+zJCVdEbCZ8Xy5ID23fbjqxfXVJr2gd2AXUu5KY4Cacvmh/MBFZ22
+Shl2MJXWpox9OypqGBhDRHJy5oV7Z49PFqHs/Yt7hMABjg+Hvz6DDD4NPyMKeJDk
+0KZ6uP6dCmqVyNvfp1s=
+-----END PUBLIC KEY-----
+`
+}, true);
 Block.genesisNonce = "";
 Block.genesisDifficulty = 0;
 Block.genesisHash = Block_1.hash(Block_1.genesisTime, Block_1.genesisLastHash, JSON.stringify(Block_1.genesisData), Block_1.genesisNonce, Block_1.genesisDifficulty);

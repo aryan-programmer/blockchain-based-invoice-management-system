@@ -3,12 +3,11 @@ import cloneDeep from "lodash/cloneDeep";
 import {freezeClass} from "../freeze";
 import {deepFreeze, DeepReadonly, getNewDifficulty, initialDifficulty} from "../utils";
 import {Invoice} from "../Wallet";
-import {Invoice as Inv} from "./Invoice";
 
 export type Nonce = string;
 export type Timestamp = string;
 export type Hash = string;
-export type Data = DeepReadonly<Invoice[] | (Inv & { __notARealInvoice: boolean })>;
+export type Data = DeepReadonly<Invoice[]>;
 
 @freezeClass
 export default class Block {
@@ -17,12 +16,21 @@ export default class Block {
 		.createHash("sha512")
 		.update("2.71828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746")
 		.digest('hex');
-	private static genesisData: Data         = deepFreeze({
-		invoiceNumber: "3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214",
-		products: [],
-		totalCost: 0,
-		__notARealInvoice: true
-	});
+	private static genesisData: Data[0]      = new Invoice({
+		invoice: {
+			invoiceNumber: '3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214',
+			products: [],
+			totalCost: 0,
+		},
+		signature: '308188024201c2e95aba73858ed20ac67d7db5a05dbf20f53ab75f8dc42800e712f981653467f13a69b4cee6e603ad138720ee901356e823e3fec9a0e6398e2d4e8f21344af9b5024201af893b427335b37c23f32689ce56345c720a72b48a8b75a07d91af03898a48266f1b1be55f9ca776f9fcf7d2a2bb4f3658e996318b390b40f4246317a895627c60',
+		publicKey: `-----BEGIN PUBLIC KEY-----
+MIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQBwzm2gXYhW23NMI3GuDeJjuRMSD/5
+9WKtHPn4lbX+zJCVdEbCZ8Xy5ID23fbjqxfXVJr2gd2AXUu5KY4Cacvmh/MBFZ22
+Shl2MJXWpox9OypqGBhDRHJy5oV7Z49PFqHs/Yt7hMABjg+Hvz6DDD4NPyMKeJDk
+0KZ6uP6dCmqVyNvfp1s=
+-----END PUBLIC KEY-----
+`
+	}, true);
 	private static genesisNonce: Nonce       = "";
 	private static genesisDifficulty: number = 0;
 	private static genesisHash               = Block.hash(
@@ -43,7 +51,7 @@ export default class Block {
 		public readonly difficulty: number,
 	) {
 		this.data = cloneDeep(data);
-		// freezeDeep(this);
+		deepFreeze(this);
 	}
 
 	static genesis (): Block {
@@ -51,7 +59,7 @@ export default class Block {
 			Block.genesisTime,
 			Block.genesisLastHash,
 			Block.genesisHash,
-			Block.genesisData,
+			[new Invoice(Block.genesisData, true)],
 			Block.genesisNonce,
 			Block.genesisDifficulty,
 		);

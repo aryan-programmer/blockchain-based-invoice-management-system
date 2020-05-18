@@ -12,7 +12,7 @@ function roundTo2Decimals(value) {
 let Invoice = Invoice_1 = class Invoice {
     constructor(a, b) {
         if (b === true) {
-            const invoice_ = a;
+            const invoice_ = cloneDeep_1.default(a);
             this.invoice = invoice_.invoice;
             this.signature = invoice_.signature;
             this.publicKey = invoice_.publicKey;

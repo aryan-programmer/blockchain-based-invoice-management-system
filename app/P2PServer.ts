@@ -25,7 +25,7 @@ type SentData =
 
 @freezeClass
 export default class P2PServer {
-	private static clearInvoicesMessage = JSON.stringify({type: SentDataType.ClearInvoices});
+	private static clearInvoicesMessage  = JSON.stringify({type: SentDataType.ClearInvoices});
 	public readonly sockets: WebSocket[] = [];
 
 	constructor (
@@ -33,6 +33,17 @@ export default class P2PServer {
 		public readonly pool: InvoicePool,
 	) {
 		Object.freeze(this);
+	}
+
+	private static sendInvoiceTo (socket: WebSocket, invoice: Invoice) {
+		socket.send(JSON.stringify({
+			type: SentDataType.Invoice,
+			value: invoice
+		}));
+	}
+
+	private static sendClearInvoicesTo (socket: WebSocket) {
+		socket.send(P2PServer.clearInvoicesMessage);
 	}
 
 	listen (p2pPort: number, peers: string[]) {
@@ -115,15 +126,5 @@ export default class P2PServer {
 		}));
 	}
 
-	private static sendInvoiceTo (socket: WebSocket, invoice: Invoice) {
-		socket.send(JSON.stringify({
-			type: SentDataType.Invoice,
-			value: invoice
-		}));
-	}
-
-	private static sendClearInvoicesTo (socket: WebSocket) {
-		socket.send(P2PServer.clearInvoicesMessage);
-	}
 	// endregion Send to socket
 }

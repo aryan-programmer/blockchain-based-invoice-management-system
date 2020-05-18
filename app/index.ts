@@ -16,7 +16,7 @@ program
 			await require("./gen-keys").default(args);
 			process.exit(0);
 		} catch (e) {
-			console.log(e);
+			console.error(e);
 			process.exit(1);
 		}
 	});
@@ -35,7 +35,7 @@ program
 		try {
 			await require("./p2p").default(args);
 		} catch (e) {
-			console.log(e);
+			console.error(e);
 			process.exit(1);
 		}
 	});

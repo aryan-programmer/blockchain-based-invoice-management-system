@@ -17,7 +17,7 @@ commander_1.program
         process.exit(0);
     }
     catch (e) {
-        console.log(e);
+        console.error(e);
         process.exit(1);
     }
 });
@@ -36,7 +36,7 @@ commander_1.program
         await require("./p2p").default(args);
     }
     catch (e) {
-        console.log(e);
+        console.error(e);
         process.exit(1);
     }
 });

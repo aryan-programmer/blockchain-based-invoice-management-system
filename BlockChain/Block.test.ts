@@ -1,16 +1,20 @@
 import {getNewDifficulty, minDifficulty} from "../utils";
+import {Invoice} from "../Wallet";
 import Block, {Data} from "./Block";
 
 describe("Block", function () {
 	let block: Block;
 	let genesis: Block;
 	// φ to 104 digits after the decimal
-	const phi: Data = {
-		invoiceNumber: "1.61803398874989484820458683436563811772030917980576286213544862270526046281890244970720720418939113748475",
-		products: [],
-		totalCost: 0,
-		__notARealInvoice: true
-	};
+	const phi: Data = [new Invoice({
+		invoice: {
+			invoiceNumber: "1.61803398874989484820458683436563811772030917980576286213544862270526046281890244970720720418939113748475",
+			products: [],
+			totalCost: 0
+		},
+		signature: "",
+		publicKey: ""
+	}, true)];
 
 	beforeEach(function () {
 		genesis = Block.genesis();

@@ -7,7 +7,7 @@ export type RecProduct = {
 	taxPercentage: number
 };
 
-export type RecInvoice = {
+export type RecInv = {
 	invoiceNumber: string,
 	products: RecProduct[],
 };
@@ -17,7 +17,7 @@ export type Product = DeepReadonly<RecProduct & {
 	totalCost: number,
 }>;
 
-export type Invoice = DeepReadonly<{
+export type Inv = DeepReadonly<{
 	invoiceNumber: string,
 	products: Product[],
 	totalCost: number,

@@ -1,5 +1,6 @@
 Object.freeze = (a: any) => a;
 
+import {Invoice} from "../Wallet";
 import Block, {Data} from "./Block";
 import BlockChain from "./BlockChain";
 
@@ -8,26 +9,35 @@ describe("BlockChain", function () {
 	let chain2: BlockChain;
 	let genesis: Block;
 	// φ to 104 digits after the decimal
-	const phi: Data       = {
-		invoiceNumber: "1.61803398874989484820458683436563811772030917980576286213544862270526046281890244970720720418939113748475",
-		products: [],
-		totalCost: 0,
-		__notARealInvoice: true
-	};
+	const phi: Data       = [new Invoice({
+		invoice: {
+			invoiceNumber: "1.61803398874989484820458683436563811772030917980576286213544862270526046281890244970720720418939113748475",
+			products: [],
+			totalCost: 0,
+		},
+		signature: "",
+		publicKey: ""
+	}, true)];
 	// π² to 104 digits after the decimal
-	const piSquared: Data = {
-		invoiceNumber: "9.86960440108935861883449099987615113531369940724079062641334937622004482241920524300177340371855223182402",
-		products: [],
-		totalCost: 0,
-		__notARealInvoice: true
-	};
+	const piSquared: Data = [new Invoice({
+		invoice: {
+			invoiceNumber: "9.86960440108935861883449099987615113531369940724079062641334937622004482241920524300177340371855223182402",
+			products: [],
+			totalCost: 0,
+		},
+		signature: "",
+		publicKey: ""
+	}, true)];
 	// √π to 104 digits after the decimal
-	const sqrtPi: Data    = {
-		invoiceNumber: "1.772453850905516027298167483341145182797549456122387128213807789852911284591032181374950656738544665",
-		products: [],
-		totalCost: 0,
-		__notARealInvoice: true
-	};
+	const sqrtPi: Data    = [new Invoice({
+		invoice: {
+			invoiceNumber: "1.772453850905516027298167483341145182797549456122387128213807789852911284591032181374950656738544665",
+			products: [],
+			totalCost: 0,
+		},
+		signature: "",
+		publicKey: ""
+	}, true)];
 
 	beforeEach(function () {
 		chain   = new BlockChain();
@@ -58,14 +68,14 @@ describe("BlockChain", function () {
 			it('should invalidate a chain with a corrupt genesis block', function () {
 				// @ts-ignore
 				// noinspection JSConstantReassignment
-				chain.chain[0].data.invoiceNumber = "22/7";
+				chain.chain[0].data[0].invoice.invoiceNumber = "22/7";
 				expect(BlockChain.isValid(chain.chain)).toBe(false);
 			});
 
 			it('should invalidate a corrupt chain', function () {
 				// @ts-ignore
 				// noinspection JSConstantReassignment
-				chain.chain[2].data = sqrtPi;
+				chain.chain[2].data[0] = sqrtPi;
 				expect(BlockChain.isValid(chain.chain)).toBe(false);
 			});
 		});
@@ -97,11 +107,7 @@ describe("BlockChain", function () {
 				chain.addBlock(phi);
 				// @ts-ignore
 				// noinspection JSConstantReassignment
-				chain.chain[3].data = {
-					invoiceNumber: "φ",
-					products: [],
-					totalCost: 0
-				};
+				chain.chain[3].data[0].invoice.invoiceNumber = "φ";
 				expect(chain2.replaceChain(chain.chain)).toBe(false);
 				expect(chain2.chain).not.toEqual(chain.chain);
 			});

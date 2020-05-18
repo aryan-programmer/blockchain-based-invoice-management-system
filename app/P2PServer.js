@@ -20,6 +20,15 @@ let P2PServer = P2PServer_1 = class P2PServer {
         this.sockets = [];
         Object.freeze(this);
     }
+    static sendInvoiceTo(socket, invoice) {
+        socket.send(JSON.stringify({
+            type: SentDataType.Invoice,
+            value: invoice
+        }));
+    }
+    static sendClearInvoicesTo(socket) {
+        socket.send(P2PServer_1.clearInvoicesMessage);
+    }
     listen(p2pPort, peers) {
         const server = new ws_1.default.Server({ port: p2pPort });
         server.on("connection", socket => this.connectSocket(socket));
@@ -87,15 +96,6 @@ let P2PServer = P2PServer_1 = class P2PServer {
             type: SentDataType.Invoices,
             value: this.pool.invoices
         }));
-    }
-    static sendInvoiceTo(socket, invoice) {
-        socket.send(JSON.stringify({
-            type: SentDataType.Invoice,
-            value: invoice
-        }));
-    }
-    static sendClearInvoicesTo(socket) {
-        socket.send(P2PServer_1.clearInvoicesMessage);
     }
 };
 P2PServer.clearInvoicesMessage = JSON.stringify({ type: SentDataType.ClearInvoices });

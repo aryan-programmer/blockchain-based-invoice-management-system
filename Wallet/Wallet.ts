@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import {RecInvoice} from "../BlockChain";
+import {RecInv} from "../BlockChain";
 import {freezeClass} from "../freeze";
 import Invoice from "./Invoice";
 import InvoicePool from "./InvoicePool";
@@ -24,7 +24,7 @@ export default class Wallet {
 		return signer.sign(this.privateKey, "hex");
 	}
 
-	addInvoiceToPool (pool: InvoicePool, invoice: RecInvoice) {
+	addInvoiceToPool (pool: InvoicePool, invoice: RecInv) {
 		return pool.addInvoice(new Invoice(invoice, this));
 	}
 }

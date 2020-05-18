@@ -1,8 +1,8 @@
 import crypto from "crypto";
 import cloneDeep from "lodash/cloneDeep";
-import {Invoice as Inv, RecInvoice} from "../BlockChain";
+import {Inv, RecInv} from "../BlockChain";
 import {freezeClass} from "../freeze";
-import {deepFreeze, DeepWriteable} from "../utils";
+import {deepFreeze, DeepReadonly, DeepWriteable} from "../utils";
 import Wallet from "./Wallet";
 
 function roundTo2Decimals (value: number): number {
@@ -15,9 +15,9 @@ export default class Invoice {
 	public readonly signature: string;
 	public readonly publicKey: string;
 
-	constructor (a: RecInvoice | Invoice, b: Wallet | true) {
+	constructor (a: DeepReadonly<RecInv> | Invoice, b: Wallet | true) {
 		if (b === true) {
-			const invoice_ = a as Invoice;
+			const invoice_ = cloneDeep(a) as Invoice;
 			this.invoice   = invoice_.invoice;
 			this.signature = invoice_.signature;
 			this.publicKey = invoice_.publicKey;
@@ -61,7 +61,7 @@ export default class Invoice {
 		return true;
 	}
 
-	static verify({publicKey, invoice, signature}: Invoice): boolean{
+	static verify ({publicKey, invoice, signature}: Invoice): boolean {
 		return Invoice.verifyTotal(invoice) && Invoice.verifySignature(publicKey, invoice, signature);
 	}
 }
