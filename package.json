@@ -31,6 +31,7 @@
 		"app": "node app/index.js",
 		"appDev": "nodemon app/index.js",
 		"pretest": "yarn app gen-keys --public-key-file-path sign-public-test-key.pem --private-key-file-path sign-private-test-key-pwd-pass.pem --passphrase pass",
-		"test": "jest"
+		"test": "jest",
+		"package": "pkg . -t host"
 	}
 }
