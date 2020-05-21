@@ -3,6 +3,7 @@ Object.freeze = (a: any) => a;
 import crypto from "crypto";
 import fs from "fs";
 import {id} from "../utils";
+import InvalidPhoneNumberError from "./InvalidPhoneNumberError";
 import Invoice from "./Invoice";
 import Wallet from "./Wallet";
 
@@ -33,18 +34,35 @@ describe("Invoice", function () {
 				cost: 176.57,
 				quantity: "2 boxes",
 				taxPercentage: 18.00
-			}]
+			}],
+			purchaser: {
+				isVendor: false,
+				name: 'Nil McNull',
+				phoneNumber: '000-000-0000'
+			}
 		}, wallet);
 	});
 
 	describe("Validity related functions", function () {
+		it('should throw an error when trying to create an invoice with an invalid phone number', function () {
+			expect(() => new Invoice({
+				invoiceNumber: id(),
+				products: [],
+				purchaser: {
+					isVendor: false,
+					name: 'Nil McNull',
+					phoneNumber: '000-000-000'
+				}
+			}, wallet)).toThrow(InvalidPhoneNumberError);
+		});
+
 		describe("Validate valid invoices", function () {
 			test("Invoice.verifySignature", function () {
 				expect(Invoice.verifySignature(wallet.publicKeyPem, invoice)).toBe(true);
 			});
 
-			test("Invoice.verifyTotal", function () {
-				expect(Invoice.verifyTotal(invoice.invoice)).toBe(true);
+			test("Invoice.verifyInv", function () {
+				expect(Invoice.verifyInv(invoice.invoice)).toBe(true);
 			});
 
 			test("Invoice.verify", function () {
@@ -74,21 +92,36 @@ describe("Invoice", function () {
 						totalCost: 0,
 					}],
 					totalCost: 0,
+					purchaser: {
+						isVendor: false,
+						name: 'Nil McNull',
+						phoneNumber: '000-000-0000'
+					}
 				};
-			})
+			});
 
 			test('Invoice.verifySignature', function () {
 				expect(Invoice.verifySignature(wallet.publicKeyPem, invoice)).toBe(false);
 			});
 
-			test('Invoice.verifyTotal', function () {
-				// The total matches as the attacker was smart
-				expect(Invoice.verifyTotal(invoice.invoice)).toBe(true);
-				// Oops! The attacker make a mistake (not likely)
-				// @ts-ignore
-				// noinspection JSConstantReassignment
-				invoice.invoice.totalCost = 100;
-				expect(Invoice.verifyTotal(invoice.invoice)).toBe(false);
+			describe('Invoice.verifyInv', function () {
+				it('should validate invoices with a valid total or phone number', function () {
+					expect(Invoice.verifyInv(invoice.invoice)).toBe(true);
+				});
+
+				it('should not validate an invoice with an invalid total', function () {
+					// @ts-ignore
+					// noinspection JSConstantReassignment
+					invoice.invoice.totalCost = 100;
+					expect(Invoice.verifyInv(invoice.invoice)).toBe(false);
+				});
+
+				it('should not validate an invoice with an invalid phone number', function () {
+					// @ts-ignore
+					// noinspection JSConstantReassignment
+					invoice.invoice.purchaser.phoneNumber = "123111111";
+					expect(Invoice.verifyInv(invoice.invoice)).toBe(false);
+				});
 			});
 
 			test("Invoice.verify", function () {

@@ -35,7 +35,12 @@ describe("InvoicePool", function () {
 				cost: 176.57,
 				quantity: "2 boxes",
 				taxPercentage: 18.00
-			}]
+			}],
+			purchaser: {
+				isVendor: false,
+				name: 'Nil McNull',
+				phoneNumber: '000-000-0000'
+			}
 		});
 	});
 
@@ -71,7 +76,12 @@ describe("InvoicePool", function () {
 						cost: 176.57,
 						quantity: "2 boxes",
 						taxPercentage: 18.00
-					}]
+					}],
+					purchaser: {
+						isVendor: false,
+						name: 'Nil McNull',
+						phoneNumber: '000-000-0000'
+					}
 				});
 				if (i % 2 === 0) {
 					if (i % 4 === 0) {
@@ -106,7 +116,12 @@ describe("InvoicePool", function () {
 				for (let i = 0; i < 3; i++) {
 					newValidInvoices.push(wallet.addInvoiceToPool(pool2, {
 						invoiceNumber: id(),
-						products: []
+						products: [],
+						purchaser: {
+							isVendor: false,
+							name: 'Nil McNull',
+							phoneNumber: '000-000-0000'
+						}
 					}));
 				}
 				pool2.addInvoices(pool.invoices);

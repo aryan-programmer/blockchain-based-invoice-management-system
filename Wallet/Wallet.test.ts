@@ -35,7 +35,12 @@ describe("Wallet", function () {
 				cost: 176.57,
 				quantity: "2 boxes",
 				taxPercentage: 18.00
-			}]
+			}],
+			purchaser: {
+				isVendor: false,
+				name: 'Nil McNull',
+				phoneNumber: '000-000-0000'
+			}
 		});
 		expect(pool.invoices[0]).toEqual(invoice);
 	});

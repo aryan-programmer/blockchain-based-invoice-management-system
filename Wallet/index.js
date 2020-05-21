@@ -1,7 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var CorruptedInvoiceError_1 = require("./CorruptedInvoiceError");
-exports.CorruptedInvoiceError = CorruptedInvoiceError_1.default;
 var Invoice_1 = require("./Invoice");
 exports.Invoice = Invoice_1.default;
 var InvoicePool_1 = require("./InvoicePool");

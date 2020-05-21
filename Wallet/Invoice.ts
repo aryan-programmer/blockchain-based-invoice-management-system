@@ -3,6 +3,7 @@ import cloneDeep from "lodash/cloneDeep";
 import {Inv, RecInv} from "./Inv";
 import {freezeClass} from "../freeze";
 import {deepFreeze, DeepReadonly, DeepWriteable} from "../utils";
+import InvalidPhoneNumberError from "./InvalidPhoneNumberError";
 import Wallet from "./Wallet";
 
 function roundTo2Decimals (value: number): number {
@@ -24,6 +25,10 @@ export default class Invoice {
 			this.signature = invoice_.signature;
 			this.publicKey = invoice_.publicKey;
 		} else {
+			const a_ = a as RecInv;
+			if(a_.purchaser.phoneNumber.match(/^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/) == null){
+				throw new InvalidPhoneNumberError(`Invalid phone number: ${a_.purchaser.phoneNumber}`);
+			}
 			const invoice_ = cloneDeep(a) as DeepWriteable<Inv>;
 			let totalCost  = 0;
 			for (const product of invoice_.products) {
@@ -53,7 +58,10 @@ export default class Invoice {
 		return verifier.verify(publicKey, invoice.signature, "hex");
 	}
 
-	static verifyTotal (invoice: Inv) {
+	static verifyInv (invoice: Inv) {
+		if(invoice.purchaser.phoneNumber.match(/^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/) == null){
+			return false;
+		}
 		let totalCost = 0;
 		for (const product of invoice.products) {
 			if (product.tax !== roundTo2Decimals(product.cost * product.taxPercentage / 100)) return false;
@@ -67,6 +75,6 @@ export default class Invoice {
 	}
 
 	static verify (invoice: Invoice): boolean {
-		return Invoice.verifyTotal(invoice.invoice) && Invoice.verifySignature(invoice.publicKey, invoice);
+		return Invoice.verifyInv(invoice.invoice) && Invoice.verifySignature(invoice.publicKey, invoice);
 	}
 }

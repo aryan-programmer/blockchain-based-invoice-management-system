@@ -1,9 +1,9 @@
 import {freezeClass} from "../freeze";
 
 @freezeClass
-export default class CorruptedInvoiceError extends Error {
+export default class InvalidPhoneNumberError extends Error {
 	constructor (message: string) {
 		super(message);
-		this.name = "CorruptedInvoiceError";
+		this.name = "InvalidPhoneNumberError";
 	}
 }

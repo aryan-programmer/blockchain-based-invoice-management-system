@@ -69,15 +69,20 @@ Block.genesisData = [new Wallet_1.Invoice({
         invoice: {
             invoiceNumber: '3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214',
             products: [],
+            purchaser: {
+                isVendor: false,
+                name: 'Nil McNull',
+                phoneNumber: '000-000-0000'
+            },
             totalCost: 0
         },
-        timestamp: '1590036663057',
-        signature: '30818702411dd1497d6e8f8e4828126573ab3a552bc94de30b282e6675d7e4c8d012c51f5b4c199151178580545f6f3381fe30c85075633ea1d8dfb90d0fde7919f841cd750b024201ed147b8c213e1497445fb8ea2cf81e63f1a20da50c5f09f7d96d73f701b3077e49f2771149409ca97ce472c5b6d20bc274a89f77c9db5def3d475631b173adc38e',
+        timestamp: '1590049621714',
+        signature: '3081880242014d75a20cfaa8704bbcd38cc2099422c2c747cbbebbc569e5c95b189abd424dece2d60671d4e268713c6215b3c06046d120d1bb1c77f37307101d82f78ecf0e2cea024201a5a6fddfd72166c16754247c7faae693ac2e1e0dde9778d27cde439766619a714a63710806c8eb0aaeadf2ab7b8ad8f8219a3bf24db0d59c5cd12618b57006b1af',
         publicKey: `-----BEGIN PUBLIC KEY-----
-MIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQAizKyaTWlUs0oqHT79kuVi5sPy8Nz
-yzy8YZ+nIZM/antb2pTbBwleJXYYAvdgB41ET+FPvjM6ta7DfTwrI1RqaRoBH9O7
-p2pRfymPIQ6hi+Bfj5rOX8LQzPJLiAUcewlD9rBRP21lRUXHeeRz3ENWaXFj90sG
-uWBrb1eJjJDfUuMiXro=
+MIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQAlX7/En80E/8KR3VMFvhiox9bUsnL
+VFOJN+Trs0jwa+rhBZfkXLgAvcdoFx3RYEfJdN7rXv1NGk0AIDSa4gdHq8wAGXH3
+oSvIRr7xLCz+ITF0Br6Kt1MJE9SloHT5auaDNdm4IguGaigjsAnMUUludmNpY31t
+LCSEXNPaUaC3cmEiCZI=
 -----END PUBLIC KEY-----
 `
     }, true)];

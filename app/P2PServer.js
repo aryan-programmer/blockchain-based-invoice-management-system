@@ -75,6 +75,7 @@ let P2PServer = P2PServer_1 = class P2PServer {
                     this.pool.addInvoice(new Wallet_1.Invoice(msg.value, true));
                 }
                 else if (msg.type === SentDataType.Invoices) {
+                    this.pool.clear();
                     const data = msg.value.map((value) => new Wallet_1.Invoice(value, true));
                     this.pool.addInvoices(data);
                 }

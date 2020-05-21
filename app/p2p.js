@@ -9,6 +9,7 @@ const util_1 = require("util");
 const BlockChain_1 = require("../BlockChain");
 const utils_1 = require("../utils");
 const Wallet_1 = require("../Wallet");
+const InvalidPhoneNumberError_1 = tslib_1.__importDefault(require("../Wallet/InvalidPhoneNumberError"));
 const Miner_1 = require("./Miner");
 const P2PServer_1 = tslib_1.__importDefault(require("./P2PServer"));
 fs_1.default.readFile.__promisify__ = util_1.promisify(fs_1.default.readFile);
@@ -62,8 +63,18 @@ async function default_1(args) {
         res.redirect("/blocks");
     });
     app.post('/addInvoice', (req, res) => {
-        p2p.broadcastInvoice(wallet.addInvoiceToPool(pool, req.body.data));
-        res.redirect("/pendingInvoices");
+        try {
+            p2p.broadcastInvoice(wallet.addInvoiceToPool(pool, req.body.data));
+            res.redirect("/pendingInvoices");
+        }
+        catch (e) {
+            if (e instanceof InvalidPhoneNumberError_1.default) {
+                res.send("Invalid Phone Number");
+            }
+            else {
+                throw e;
+            }
+        }
     });
     app.listen(httpPort, () => {
         console.log(`Listening on port ${httpPort}`);

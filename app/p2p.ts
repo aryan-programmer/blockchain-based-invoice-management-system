@@ -4,9 +4,10 @@ import express from "express";
 import {Request, Response} from "express-serve-static-core";
 import fs from "fs";
 import {promisify} from "util";
-import {Block, BlockChain} from "../BlockChain";
+import {BlockChain} from "../BlockChain";
 import {passwordPrompt} from "../utils";
-import {Invoice, InvoicePool, Wallet} from "../Wallet";
+import {InvoicePool, Wallet} from "../Wallet";
+import InvalidPhoneNumberError from "../Wallet/InvalidPhoneNumberError";
 import {Miner} from "./Miner";
 import P2PServer from "./P2PServer";
 
@@ -78,8 +79,16 @@ export default async function (args: any): Promise<void> {
 	});
 
 	app.post('/addInvoice', (req: Request, res: Response) => {
-		p2p.broadcastInvoice(wallet.addInvoiceToPool(pool, req.body.data));
-		res.redirect("/pendingInvoices");
+		try {
+			p2p.broadcastInvoice(wallet.addInvoiceToPool(pool, req.body.data));
+			res.redirect("/pendingInvoices");
+		} catch (e) {
+			if (e instanceof InvalidPhoneNumberError) {
+				res.send("Invalid Phone Number");
+			} else {
+				throw e;
+			}
+		}
 	});
 
 	app.listen(httpPort, () => {

@@ -99,6 +99,7 @@ export default class P2PServer {
 				} else if (msg.type === SentDataType.Invoice) {
 					this.pool.addInvoice(new Invoice(msg.value, true));
 				} else if (msg.type === SentDataType.Invoices) {
+					this.pool.clear();
 					const data: Invoice[] = msg.value.map(
 						(value: Invoice) =>
 							new Invoice(value, true)
