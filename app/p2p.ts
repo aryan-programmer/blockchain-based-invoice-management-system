@@ -4,9 +4,9 @@ import express from "express";
 import {Request, Response} from "express-serve-static-core";
 import fs from "fs";
 import {promisify} from "util";
-import {BlockChain} from "../BlockChain";
+import {Block, BlockChain} from "../BlockChain";
 import {passwordPrompt} from "../utils";
-import {InvoicePool, Wallet} from "../Wallet";
+import {Invoice, InvoicePool, Wallet} from "../Wallet";
 import {Miner} from "./Miner";
 import P2PServer from "./P2PServer";
 
@@ -60,7 +60,7 @@ export default async function (args: any): Promise<void> {
 
 	app.use(bodyParser.json());
 
-	app.get('/invoices', (req: Request, res: Response) => {
+	app.get('/blocks', (req: Request, res: Response) => {
 		res.json(chain.chain);
 	});
 
@@ -74,7 +74,7 @@ export default async function (args: any): Promise<void> {
 
 	app.post('/mine', (req: Request, res: Response) => {
 		miner.mine();
-		res.redirect("/invoices");
+		res.redirect("/blocks");
 	});
 
 	app.post('/addInvoice', (req: Request, res: Response) => {

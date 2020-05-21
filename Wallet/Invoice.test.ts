@@ -40,7 +40,7 @@ describe("Invoice", function () {
 	describe("Validity related functions", function () {
 		describe("Validate valid invoices", function () {
 			test("Invoice.verifySignature", function () {
-				expect(Invoice.verifySignature(wallet.publicKeyPem, invoice.invoice, invoice.signature)).toBe(true);
+				expect(Invoice.verifySignature(wallet.publicKeyPem, invoice)).toBe(true);
 			});
 
 			test("Invoice.verifyTotal", function () {
@@ -78,7 +78,7 @@ describe("Invoice", function () {
 			})
 
 			test('Invoice.verifySignature', function () {
-				expect(Invoice.verifySignature(wallet.publicKeyPem, invoice.invoice, invoice.signature)).toBe(false);
+				expect(Invoice.verifySignature(wallet.publicKeyPem, invoice)).toBe(false);
 			});
 
 			test('Invoice.verifyTotal', function () {

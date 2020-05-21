@@ -1,8 +1,6 @@
 import crypto from "crypto";
-import {RecInv} from "../BlockChain";
+import {RecInv, Invoice, InvoicePool} from ".";
 import {freezeClass} from "../freeze";
-import Invoice from "./Invoice";
-import InvoicePool from "./InvoicePool";
 
 @freezeClass
 export default class Wallet {

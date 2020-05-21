@@ -16,22 +16,23 @@ export default class Block {
 		.createHash("sha512")
 		.update("2.71828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746")
 		.digest('hex');
-	private static genesisData: Data[0]      = new Invoice({
+	private static genesisData: Data         = [new Invoice({
 		invoice: {
 			invoiceNumber: '3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214',
 			products: [],
-			totalCost: 0,
+			totalCost: 0
 		},
-		signature: '308188024201c2e95aba73858ed20ac67d7db5a05dbf20f53ab75f8dc42800e712f981653467f13a69b4cee6e603ad138720ee901356e823e3fec9a0e6398e2d4e8f21344af9b5024201af893b427335b37c23f32689ce56345c720a72b48a8b75a07d91af03898a48266f1b1be55f9ca776f9fcf7d2a2bb4f3658e996318b390b40f4246317a895627c60',
+		timestamp: '1590036663057',
+		signature: '30818702411dd1497d6e8f8e4828126573ab3a552bc94de30b282e6675d7e4c8d012c51f5b4c199151178580545f6f3381fe30c85075633ea1d8dfb90d0fde7919f841cd750b024201ed147b8c213e1497445fb8ea2cf81e63f1a20da50c5f09f7d96d73f701b3077e49f2771149409ca97ce472c5b6d20bc274a89f77c9db5def3d475631b173adc38e',
 		publicKey: `-----BEGIN PUBLIC KEY-----
-MIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQBwzm2gXYhW23NMI3GuDeJjuRMSD/5
-9WKtHPn4lbX+zJCVdEbCZ8Xy5ID23fbjqxfXVJr2gd2AXUu5KY4Cacvmh/MBFZ22
-Shl2MJXWpox9OypqGBhDRHJy5oV7Z49PFqHs/Yt7hMABjg+Hvz6DDD4NPyMKeJDk
-0KZ6uP6dCmqVyNvfp1s=
+MIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQAizKyaTWlUs0oqHT79kuVi5sPy8Nz
+yzy8YZ+nIZM/antb2pTbBwleJXYYAvdgB41ET+FPvjM6ta7DfTwrI1RqaRoBH9O7
+p2pRfymPIQ6hi+Bfj5rOX8LQzPJLiAUcewlD9rBRP21lRUXHeeRz3ENWaXFj90sG
+uWBrb1eJjJDfUuMiXro=
 -----END PUBLIC KEY-----
 `
-	}, true);
-	private static genesisNonce: Nonce       = "";
+	}, true)];
+	private static genesisNonce: Nonce       = "e81a8ce9de16123cd50989e0d4c7be338e24b4624bac88dd02452bcb0555a46230307cd625c0baafee9df74a9321a34541420c95a7c37d21caff2568b40ef7a0";
 	private static genesisDifficulty: number = 0;
 	private static genesisHash               = Block.hash(
 		Block.genesisTime,
@@ -40,6 +41,7 @@ Shl2MJXWpox9OypqGBhDRHJy5oV7Z49PFqHs/Yt7hMABjg+Hvz6DDD4NPyMKeJDk
 		Block.genesisNonce,
 		Block.genesisDifficulty,
 	);
+
 	public readonly data: Data;
 
 	constructor (
@@ -59,7 +61,7 @@ Shl2MJXWpox9OypqGBhDRHJy5oV7Z49PFqHs/Yt7hMABjg+Hvz6DDD4NPyMKeJDk
 			Block.genesisTime,
 			Block.genesisLastHash,
 			Block.genesisHash,
-			[new Invoice(Block.genesisData, true)],
+			[new Invoice(Block.genesisData[0], true)],
 			Block.genesisNonce,
 			Block.genesisDifficulty,
 		);

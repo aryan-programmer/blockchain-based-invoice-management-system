@@ -1,6 +1,6 @@
 import crypto from "crypto";
 import cloneDeep from "lodash/cloneDeep";
-import {Inv, RecInv} from "../BlockChain";
+import {Inv, RecInv} from "./Inv";
 import {freezeClass} from "../freeze";
 import {deepFreeze, DeepReadonly, DeepWriteable} from "../utils";
 import Wallet from "./Wallet";
@@ -12,6 +12,7 @@ function roundTo2Decimals (value: number): number {
 @freezeClass
 export default class Invoice {
 	public readonly invoice: Inv;
+	public readonly timestamp: string;
 	public readonly signature: string;
 	public readonly publicKey: string;
 
@@ -19,6 +20,7 @@ export default class Invoice {
 		if (b === true) {
 			const invoice_ = cloneDeep(a) as Invoice;
 			this.invoice   = invoice_.invoice;
+			this.timestamp = invoice_.timestamp;
 			this.signature = invoice_.signature;
 			this.publicKey = invoice_.publicKey;
 		} else {
@@ -32,20 +34,23 @@ export default class Invoice {
 			}
 			invoice_.totalCost = roundTo2Decimals(totalCost);
 			this.invoice       = invoice_;
+			this.timestamp     = Date.now().toString();
 			this.signature     = b.sign(
 				JSON.stringify(invoice_),
-				b.publicKeyPem
+				this.timestamp,
+				b.publicKeyPem,
 			);
 			this.publicKey     = b.publicKeyPem;
 		}
 		deepFreeze(this);
 	}
 
-	static verifySignature (publicKey: string, invoice: Inv, signature: string): boolean {
+	static verifySignature (publicKey: string, invoice: Invoice): boolean {
 		const verifier = crypto.createVerify("sha512");
-		verifier.update(JSON.stringify(invoice));
-		verifier.update(publicKey);
-		return verifier.verify(publicKey, signature, "hex");
+		verifier.update(JSON.stringify(invoice.invoice));
+		verifier.update(invoice.timestamp);
+		verifier.update(invoice.publicKey);
+		return verifier.verify(publicKey, invoice.signature, "hex");
 	}
 
 	static verifyTotal (invoice: Inv) {
@@ -61,7 +66,7 @@ export default class Invoice {
 		return true;
 	}
 
-	static verify ({publicKey, invoice, signature}: Invoice): boolean {
-		return Invoice.verifyTotal(invoice) && Invoice.verifySignature(publicKey, invoice, signature);
+	static verify (invoice: Invoice): boolean {
+		return Invoice.verifyTotal(invoice.invoice) && Invoice.verifySignature(invoice.publicKey, invoice);
 	}
 }

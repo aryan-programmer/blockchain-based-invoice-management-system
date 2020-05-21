@@ -48,7 +48,7 @@ async function default_1(args) {
     const p2p = new P2PServer_1.default(chain, pool);
     const miner = new Miner_1.Miner(wallet, p2p);
     app.use(body_parser_1.default.json());
-    app.get('/invoices', (req, res) => {
+    app.get('/blocks', (req, res) => {
         res.json(chain.chain);
     });
     app.get('/pendingInvoices', (req, res) => {
@@ -59,7 +59,7 @@ async function default_1(args) {
     });
     app.post('/mine', (req, res) => {
         miner.mine();
-        res.redirect("/invoices");
+        res.redirect("/blocks");
     });
     app.post('/addInvoice', (req, res) => {
         p2p.broadcastInvoice(wallet.addInvoiceToPool(pool, req.body.data));
