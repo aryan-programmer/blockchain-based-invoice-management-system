@@ -18,6 +18,7 @@ An individual product’s tax price and total cost will be calculated by the app
 First run:
 
 ```
+yarn global add tsc
 yarn install
 ```
 
