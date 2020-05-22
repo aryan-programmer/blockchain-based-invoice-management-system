@@ -10,8 +10,9 @@ let InvoicePool = class InvoicePool {
     addInvoice(invoice) {
         if (this.invoices.find(value => value.invoice.invoiceNumber === invoice.invoice.invoiceNumber) == null && Invoice_1.default.verify(invoice)) {
             this.invoices.push(invoice);
+            return true;
         }
-        return invoice;
+        return false;
     }
     getValidInvoices() {
         return this.invoices.filter(Invoice_1.default.verify);

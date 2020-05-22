@@ -1,7 +1,7 @@
 import bodyParser from "body-parser";
 import crypto from "crypto";
 import express from "express";
-import {Request, Response} from "express-serve-static-core";
+import {NextFunction, Request, Response} from "express-serve-static-core";
 import fs from "fs";
 import {promisify} from "util";
 import {BlockChain} from "../BlockChain";
@@ -12,6 +12,17 @@ import {Miner} from "./Miner";
 import P2PServer from "./P2PServer";
 
 fs.readFile.__promisify__ = promisify(fs.readFile);
+
+const localhosts = ['localhost', '127.0.0.1', '::1', '::ffff:127.0.0.1'];
+
+function localhostOnly (req: Request, res: Response, next: NextFunction) {
+	const ip = req.ip || req.connection.remoteAddress || "not at all localhost";
+	if (!localhosts.includes(ip)) {
+		res.sendStatus(401);
+		return;
+	}
+	next();
+}
 
 export default async function (args: any): Promise<void> {
 	let httpPort: number,
@@ -73,12 +84,12 @@ export default async function (args: any): Promise<void> {
 		res.send(wallet.publicKeyPem);
 	});
 
-	app.post('/mine', (req: Request, res: Response) => {
+	app.post('/mine', localhostOnly, (req: Request, res: Response) => {
 		miner.mine();
 		res.redirect("/blocks");
 	});
 
-	app.post('/addInvoice', (req: Request, res: Response) => {
+	app.post('/addInvoice', localhostOnly, (req: Request, res: Response) => {
 		try {
 			p2p.broadcastInvoice(wallet.addInvoiceToPool(pool, req.body.data));
 			res.redirect("/pendingInvoices");

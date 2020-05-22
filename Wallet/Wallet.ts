@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import {RecInv, Invoice, InvoicePool} from ".";
+import {Invoice, InvoicePool, RecInv} from ".";
 import {freezeClass} from "../freeze";
 
 @freezeClass
@@ -23,6 +23,8 @@ export default class Wallet {
 	}
 
 	addInvoiceToPool (pool: InvoicePool, invoice: RecInv) {
-		return pool.addInvoice(new Invoice(invoice, this));
+		const invoice_ = new Invoice(invoice, this);
+		pool.addInvoice(invoice_);
+		return invoice_;
 	}
 }

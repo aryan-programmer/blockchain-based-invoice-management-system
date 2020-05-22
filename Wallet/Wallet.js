@@ -19,7 +19,9 @@ let Wallet = class Wallet {
         return signer.sign(this.privateKey, "hex");
     }
     addInvoiceToPool(pool, invoice) {
-        return pool.addInvoice(new _1.Invoice(invoice, this));
+        const invoice_ = new _1.Invoice(invoice, this);
+        pool.addInvoice(invoice_);
+        return invoice_;
     }
 };
 Wallet = tslib_1.__decorate([

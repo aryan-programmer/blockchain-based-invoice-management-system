@@ -52,7 +52,7 @@ describe("InvoicePool", function () {
 		describe("And adding it again", function () {
 			it('should do nothing', function () {
 				const oldPool = cloneDeep(pool);
-				expect(pool.addInvoice(invoice)).toBe(invoice);
+				pool.addInvoice(invoice)
 				expect(oldPool).toEqual(pool);
 			});
 		})

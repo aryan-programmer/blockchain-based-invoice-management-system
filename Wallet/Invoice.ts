@@ -1,8 +1,8 @@
 import crypto from "crypto";
 import cloneDeep from "lodash/cloneDeep";
-import {Inv, RecInv} from "./Inv";
 import {freezeClass} from "../freeze";
 import {deepFreeze, DeepReadonly, DeepWriteable} from "../utils";
+import {Inv, RecInv} from "./Inv";
 import InvalidPhoneNumberError from "./InvalidPhoneNumberError";
 import Wallet from "./Wallet";
 
@@ -26,7 +26,7 @@ export default class Invoice {
 			this.publicKey = invoice_.publicKey;
 		} else {
 			const a_ = a as RecInv;
-			if(a_.purchaser.phoneNumber.match(/^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/) == null){
+			if (a_.purchaser.phoneNumber.match(/^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/) == null) {
 				throw new InvalidPhoneNumberError(`Invalid phone number: ${a_.purchaser.phoneNumber}`);
 			}
 			const invoice_ = cloneDeep(a) as DeepWriteable<Inv>;
@@ -59,7 +59,7 @@ export default class Invoice {
 	}
 
 	static verifyInv (invoice: Inv) {
-		if(invoice.purchaser.phoneNumber.match(/^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/) == null){
+		if (invoice.purchaser.phoneNumber.match(/^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/) == null) {
 			return false;
 		}
 		let totalCost = 0;

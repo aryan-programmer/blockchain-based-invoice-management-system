@@ -6,8 +6,8 @@ import {Invoice, InvoicePool} from "../Wallet";
 enum SentDataType {
 	Chain,
 	Invoice,
-	Invoices,
-	ClearInvoices,
+	InitInvoicePool,
+	ClearInvoicePool,
 }
 
 type SentDataValue = [Block[], Invoice, Invoice[], never];
@@ -19,13 +19,13 @@ type SentData_Maker<T extends SentDataType> = {
 type SentData =
 	SentData_Maker<SentDataType.Chain> |
 	SentData_Maker<SentDataType.Invoice> |
-	SentData_Maker<SentDataType.Invoices> |
-	SentData_Maker<SentDataType.ClearInvoices> |
+	SentData_Maker<SentDataType.InitInvoicePool> |
+	SentData_Maker<SentDataType.ClearInvoicePool> |
 	never;
 
 @freezeClass
 export default class P2PServer {
-	private static clearInvoicesMessage  = JSON.stringify({type: SentDataType.ClearInvoices});
+	private static clearInvoicesMessage  = JSON.stringify({type: SentDataType.ClearInvoicePool});
 	public readonly sockets: WebSocket[] = [];
 
 	constructor (
@@ -74,7 +74,9 @@ export default class P2PServer {
 	private connectToPeers (peers: string[]) {
 		for (const peer of peers) {
 			const socket = new WebSocket(peer);
-			socket.on("open", () => this.connectSocket(socket))
+			socket.on("open", () =>
+				this.connectSocket(socket)
+			)
 		}
 	}
 
@@ -89,24 +91,36 @@ export default class P2PServer {
 	private addMessageHandlerFor (socket: WebSocket) {
 		socket.on("message", (message: string | Buffer | ArrayBuffer | Buffer[]) => {
 			if (typeof message === "string") {
-				const msg: SentData = JSON.parse(message);
+				const msg: SentData       = JSON.parse(message);
+				let relayToPeers: boolean = false;
 				if (msg.type === SentDataType.Chain) {
 					const data: Block[] = msg.value.map(
 						(value: Block) =>
 							new Block(value.timestamp, value.lastHash, value.hash, value.data, value.nonce, value.difficulty)
 					);
-					this.chain.replaceChain(data);
+					relayToPeers        = this.chain.replaceChain(data);
 				} else if (msg.type === SentDataType.Invoice) {
-					this.pool.addInvoice(new Invoice(msg.value, true));
-				} else if (msg.type === SentDataType.Invoices) {
-					this.pool.clear();
-					const data: Invoice[] = msg.value.map(
-						(value: Invoice) =>
-							new Invoice(value, true)
-					);
-					this.pool.addInvoices(data);
-				} else if (msg.type === SentDataType.ClearInvoices) {
-					this.pool.clear();
+					relayToPeers = this.pool.addInvoice(new Invoice(msg.value, true));
+				} else if (msg.type === SentDataType.InitInvoicePool) {
+					if (this.pool.invoices.length === 0) {
+						const data: Invoice[] = msg.value.map(
+							(value: Invoice) =>
+								new Invoice(value, true)
+						);
+						this.pool.invoices    = data;
+						relayToPeers          = true;
+					}
+				} else if (msg.type === SentDataType.ClearInvoicePool) {
+					if (this.pool.invoices.length !== 0) {
+						this.pool.clear();
+						relayToPeers = true;
+					}
+				}
+				if (relayToPeers) {
+					for (const socket_ of this.sockets) {
+						if (socket === socket_) continue;
+						socket_.send(message);
+					}
 				}
 			}
 		});
@@ -122,7 +136,7 @@ export default class P2PServer {
 
 	private sendInvoicesTo (socket: WebSocket) {
 		socket.send(JSON.stringify({
-			type: SentDataType.Invoices,
+			type: SentDataType.InitInvoicePool,
 			value: this.pool.invoices
 		}));
 	}

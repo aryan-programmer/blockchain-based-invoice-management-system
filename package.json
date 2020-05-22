@@ -1,7 +1,7 @@
 {
 	"name": "blockchain-based-invoice-management-system",
 	"version": "1.0.0",
-	"description": "A blockchain based invoice management system.",
+	"description": "A blockchain based invoice management system for vendors to track all their customers' invoices.",
 	"main": "app/index.js",
 	"bin": "app/index.js",
 	"license": "MIT",
@@ -30,7 +30,7 @@
 	"scripts": {
 		"app": "node app/index.js",
 		"appDev": "nodemon app/index.js",
-		"pretest": "yarn app gen-keys --public-key-file-path sign-public-test-key.pem --private-key-file-path sign-private-test-key-pwd-pass.pem --passphrase pass",
+		"pretest": "yarn app gen-keys --public-key-file-path sign-public-test-key.pem --private-key-file-path sign-private-test-key-pwd-pass.pem --password pass",
 		"test": "jest",
 		"package": "pkg . -t host"
 	}

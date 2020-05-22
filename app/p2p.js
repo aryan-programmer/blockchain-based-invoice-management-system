@@ -13,6 +13,15 @@ const InvalidPhoneNumberError_1 = tslib_1.__importDefault(require("../Wallet/Inv
 const Miner_1 = require("./Miner");
 const P2PServer_1 = tslib_1.__importDefault(require("./P2PServer"));
 fs_1.default.readFile.__promisify__ = util_1.promisify(fs_1.default.readFile);
+const localhosts = ['localhost', '127.0.0.1', '::1', '::ffff:127.0.0.1'];
+function localhostOnly(req, res, next) {
+    const ip = req.ip || req.connection.remoteAddress || "not at all localhost";
+    if (!localhosts.includes(ip)) {
+        res.sendStatus(401);
+        return;
+    }
+    next();
+}
 async function default_1(args) {
     let httpPort, p2pPort, peers, password, publicKeyFilePath, privateKeyFilePath;
     ({ port: httpPort, p2pPort, peers, password, publicKeyFilePath, privateKeyFilePath } = args);
@@ -58,11 +67,11 @@ async function default_1(args) {
     app.get('/publicKey', (req, res) => {
         res.send(wallet.publicKeyPem);
     });
-    app.post('/mine', (req, res) => {
+    app.post('/mine', localhostOnly, (req, res) => {
         miner.mine();
         res.redirect("/blocks");
     });
-    app.post('/addInvoice', (req, res) => {
+    app.post('/addInvoice', localhostOnly, (req, res) => {
         try {
             p2p.broadcastInvoice(wallet.addInvoiceToPool(pool, req.body.data));
             res.redirect("/pendingInvoices");

@@ -10,8 +10,8 @@ var SentDataType;
 (function (SentDataType) {
     SentDataType[SentDataType["Chain"] = 0] = "Chain";
     SentDataType[SentDataType["Invoice"] = 1] = "Invoice";
-    SentDataType[SentDataType["Invoices"] = 2] = "Invoices";
-    SentDataType[SentDataType["ClearInvoices"] = 3] = "ClearInvoices";
+    SentDataType[SentDataType["InitInvoicePool"] = 2] = "InitInvoicePool";
+    SentDataType[SentDataType["ClearInvoicePool"] = 3] = "ClearInvoicePool";
 })(SentDataType || (SentDataType = {}));
 let P2PServer = P2PServer_1 = class P2PServer {
     constructor(chain, pool) {
@@ -67,20 +67,33 @@ let P2PServer = P2PServer_1 = class P2PServer {
         socket.on("message", (message) => {
             if (typeof message === "string") {
                 const msg = JSON.parse(message);
+                let relayToPeers = false;
                 if (msg.type === SentDataType.Chain) {
                     const data = msg.value.map((value) => new BlockChain_1.Block(value.timestamp, value.lastHash, value.hash, value.data, value.nonce, value.difficulty));
-                    this.chain.replaceChain(data);
+                    relayToPeers = this.chain.replaceChain(data);
                 }
                 else if (msg.type === SentDataType.Invoice) {
-                    this.pool.addInvoice(new Wallet_1.Invoice(msg.value, true));
+                    relayToPeers = this.pool.addInvoice(new Wallet_1.Invoice(msg.value, true));
                 }
-                else if (msg.type === SentDataType.Invoices) {
-                    this.pool.clear();
-                    const data = msg.value.map((value) => new Wallet_1.Invoice(value, true));
-                    this.pool.addInvoices(data);
+                else if (msg.type === SentDataType.InitInvoicePool) {
+                    if (this.pool.invoices.length === 0) {
+                        const data = msg.value.map((value) => new Wallet_1.Invoice(value, true));
+                        this.pool.invoices = data;
+                        relayToPeers = true;
+                    }
                 }
-                else if (msg.type === SentDataType.ClearInvoices) {
-                    this.pool.clear();
+                else if (msg.type === SentDataType.ClearInvoicePool) {
+                    if (this.pool.invoices.length !== 0) {
+                        this.pool.clear();
+                        relayToPeers = true;
+                    }
+                }
+                if (relayToPeers) {
+                    for (const socket_ of this.sockets) {
+                        if (socket === socket_)
+                            continue;
+                        socket_.send(message);
+                    }
                 }
             }
         });
@@ -94,12 +107,12 @@ let P2PServer = P2PServer_1 = class P2PServer {
     }
     sendInvoicesTo(socket) {
         socket.send(JSON.stringify({
-            type: SentDataType.Invoices,
+            type: SentDataType.InitInvoicePool,
             value: this.pool.invoices
         }));
     }
 };
-P2PServer.clearInvoicesMessage = JSON.stringify({ type: SentDataType.ClearInvoices });
+P2PServer.clearInvoicesMessage = JSON.stringify({ type: SentDataType.ClearInvoicePool });
 P2PServer = P2PServer_1 = tslib_1.__decorate([
     freeze_1.freezeClass
 ], P2PServer);

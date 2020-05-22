@@ -5,13 +5,14 @@ import Invoice from "./Invoice";
 export default class InvoicePool {
 	invoices: Invoice[] = [];
 
-	addInvoice (invoice: Invoice): Invoice {
+	addInvoice (invoice: Invoice): boolean {
 		if (this.invoices.find(
 			value => value.invoice.invoiceNumber === invoice.invoice.invoiceNumber
 		) == null && Invoice.verify(invoice)) {
 			this.invoices.push(invoice);
+			return true;
 		}
-		return invoice;
+		return false;
 	}
 
 	getValidInvoices () {

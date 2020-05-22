@@ -1,4 +1,3 @@
-import isEqual from "lodash/isEqual";
 import {freezeClass} from "../freeze";
 import Block, {Data} from "./Block";
 
@@ -14,7 +13,7 @@ export default class BlockChain {
 		const chainLen = chain.length;
 		if (chainLen < 2) return false;
 
-		if (!isEqual(chain[0], Block.genesis())) return false;
+		if (JSON.stringify(chain[0]) !== JSON.stringify(Block.genesis())) return false;
 
 		for (let i = 1; i < chainLen; i++) {
 			const lastBlock = chain[i - 1];
