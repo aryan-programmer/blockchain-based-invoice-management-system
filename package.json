@@ -25,7 +25,7 @@
 		"lodash": "^4.17.19",
 		"tslib": "^1.11.1",
 		"uuid": "^8.0.0",
-		"ws": "^7.2.5"
+		"ws": "^7.4.6"
 	},
 	"scripts": {
 		"app": "node app/index.js",
